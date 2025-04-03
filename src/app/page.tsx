@@ -2,6 +2,7 @@ import CreateScheduleButton from "@/components/create-schedule-button";
 import { SchedulesTable } from "@/components/schedule-table";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { currentUser } from "@clerk/nextjs/server";
 
 async function fetchSchedules() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs`);
