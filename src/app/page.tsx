@@ -29,7 +29,6 @@ export default async function Home() {
             <CreateScheduleButton />
           </div>
         </div>
-
         <SchedulesTable schedules={schedules} />
       </div>
     </>
