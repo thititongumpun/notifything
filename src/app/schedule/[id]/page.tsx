@@ -4,7 +4,6 @@ import {
   Calendar,
   Clock,
   CreditCard,
-  DollarSign,
   MessageCircle,
   Plus,
 } from "lucide-react";
@@ -25,6 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 import {
   Accordion,
@@ -83,6 +83,12 @@ export default async function PaymentPlanDetailsPage({
     // Calculate payment progress
     const paidCount = plan.payments.filter((payment) => payment.isPaid).length;
     const progressPercentage = (paidCount / plan.totalMonths) * 100;
+
+    // Calculate total amount for the payments
+    const totalAmount = plan.payments.reduce(
+      (total, payment) => total + parseFloat(payment.amount),
+      0
+    ).toString();
 
     return (
       <Card key={plan.id} className="mb-6">
@@ -204,7 +210,6 @@ export default async function PaymentPlanDetailsPage({
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center">
-                                <DollarSign className="mr-2 h-4 w-4 text-muted-foreground hidden sm:inline" />
                                 <span className="truncate">
                                   {formatCurrency(payment.amount)}
                                 </span>
@@ -247,6 +252,21 @@ export default async function PaymentPlanDetailsPage({
                           </TableRow>
                         ))}
                     </TableBody>
+                    <TableFooter>
+                      <TableRow className="bg-gray-50 dark:bg-gray-800">
+                        <TableCell colSpan={2} className="font-bold">
+                          Total
+                        </TableCell>
+                        <TableCell className="font-bold">
+                          <div className="flex items-center">
+                            <span className="truncate">
+                              {formatCurrency(totalAmount)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell colSpan={3}></TableCell>
+                      </TableRow>
+                    </TableFooter>
                   </Table>
                 </div>
 
@@ -310,6 +330,23 @@ export default async function PaymentPlanDetailsPage({
                         </CardContent>
                       </Card>
                     ))}
+                  
+                  {/* Add total amount card for mobile view */}
+                  <Card className="border-t-2 border-primary">
+                    <CardHeader className="py-3">
+                      <div className="flex justify-between items-center">
+                        <div className="font-medium">Total Amount</div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="py-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">
+                          Sum Total:
+                        </span>
+                        <span className="font-bold">{formatCurrency(totalAmount)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </AccordionContent>
             </AccordionItem>
