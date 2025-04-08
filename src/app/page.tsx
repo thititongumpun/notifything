@@ -2,6 +2,7 @@ import CreateScheduleButton from "@/components/create-schedule-button";
 import { SchedulesTable } from "@/components/schedule-table";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import SubscribeButton from "@/components/subscribe-button";
 
 async function fetchSchedules() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs`, {
@@ -29,6 +30,7 @@ export default async function Home() {
               <span>{schedules.length} Notifications</span>
             </Badge>
             <CreateScheduleButton />
+            <SubscribeButton />
           </div>
         </div>
         <SchedulesTable schedules={schedules} />

@@ -4,6 +4,7 @@ import {
   Calendar,
   Clock,
   CreditCard,
+  DollarSign,
   MessageCircle,
   Plus,
 } from "lucide-react";
@@ -85,10 +86,9 @@ export default async function PaymentPlanDetailsPage({
     const progressPercentage = (paidCount / plan.totalMonths) * 100;
 
     // Calculate total amount for the payments
-    const totalAmount = plan.payments.reduce(
-      (total, payment) => total + parseFloat(payment.amount),
-      0
-    ).toString();
+    const totalAmount = plan.payments
+      .reduce((total, payment) => total + parseFloat(payment.amount), 0)
+      .toString();
 
     return (
       <Card key={plan.id} className="mb-6">
@@ -330,7 +330,7 @@ export default async function PaymentPlanDetailsPage({
                         </CardContent>
                       </Card>
                     ))}
-                  
+
                   {/* Add total amount card for mobile view */}
                   <Card className="border-t-2 border-primary">
                     <CardHeader className="py-3">
@@ -343,7 +343,9 @@ export default async function PaymentPlanDetailsPage({
                         <span className="text-muted-foreground">
                           Sum Total:
                         </span>
-                        <span className="font-bold">{formatCurrency(totalAmount)}</span>
+                        <span className="font-bold">
+                          {formatCurrency(totalAmount)}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
