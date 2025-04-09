@@ -6,6 +6,7 @@ export type Cronjob = {
   lastRunAt: Date | null;
   createdAt: Date;
   paymentPlans: PaymentPlan[];
+  subscriptions: Subscriptions;
 }
 
 export type PaymentPlan = {
@@ -32,6 +33,16 @@ export type Payment = {
   paymentMonth: number;
   notes: string;
   receiptNumber: null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type Subscriptions = {
+  id: string;
+  jobId: string;
+  userId: string;
+  subscription: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

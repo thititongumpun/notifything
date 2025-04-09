@@ -105,9 +105,8 @@ export async function remove(id: string): Promise<ActionResult> {
       method: 'DELETE'
     });
 
-    revalidatePath('/');
 
-    return { success: true };
+    revalidatePath('/');
 
     return { success: true };
   } catch (error) {

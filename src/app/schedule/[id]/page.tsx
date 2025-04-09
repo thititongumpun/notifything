@@ -427,7 +427,7 @@ export default async function PaymentPlanDetailsPage({
               Test Notification
             </Button>
             <Button variant="outline">Edit Schedule</Button>
-            <SubscribeButton jobId={job.id} />
+            <SubscribeButton jobId={job.id} subscriptions={job.subscriptions} />
           </CardFooter>
         </Card>
 

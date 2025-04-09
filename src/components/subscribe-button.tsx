@@ -4,16 +4,23 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
+import { Subscriptions } from "@/types/Cronjob";
+import { useRouter } from "next/navigation";
 
 type VapidPublicKey = {
   publicKey: string;
 };
 
-export default function SubscribeButton({ jobId }: { jobId: string }) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+export default function SubscribeButton({
+  jobId,
+  subscriptions,
+}: {
+  jobId: string;
+  subscriptions: Subscriptions;
+}) {
   const [isSupported, setIsSupported] = useState(false);
-
   const { user } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     // Check if push notifications are supported
@@ -24,15 +31,6 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
       }
 
       setIsSupported(true);
-
-      // Check if already subscribed
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        setIsSubscribed(!!subscription);
-      } catch (error) {
-        console.error("Error checking subscription:", error);
-      }
     };
 
     checkSupport();
@@ -41,7 +39,9 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
   const subscribe = async () => {
     try {
       // Register service worker if not already registered
-      const registration = await navigator.serviceWorker.register("/sw.js");
+      const registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+      });
 
       // Get VAPID public key from server
       const response = await fetch(
@@ -71,8 +71,9 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
         }),
       });
 
-      setIsSubscribed(true);
       toast.success("Successfully subscribed to notifications");
+
+      router.refresh();
     } catch (error) {
       console.error("Subscription failed:", error);
       toast.error("Failed to subscribe to notifications");
@@ -87,6 +88,8 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
       if (subscription) {
         // Unsubscribe from browser
         await subscription.unsubscribe();
+
+        console.log(subscription);
 
         // Notify server
         await fetch(
@@ -104,8 +107,9 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
           }
         );
 
-        setIsSubscribed(false);
         toast.success("Successfully unsubscribed from notifications");
+
+        router.refresh();
       }
     } catch (error) {
       console.error("Unsubscribe failed:", error);
@@ -136,15 +140,28 @@ export default function SubscribeButton({ jobId }: { jobId: string }) {
     );
   }
 
+  // Use subscriptions prop directly to determine button state and action
+  const isSubscribed = subscriptions !== null && subscriptions.isActive;
+
   return (
-    <Button
-      variant={isSubscribed ? "outline" : "default"}
-      onClick={isSubscribed ? unsubscribe : subscribe}
-      className="w-full sm:w-auto"
-    >
-      {isSubscribed
-        ? "Unsubscribe from Notifications"
-        : "Subscribe to Notifications"}
-    </Button>
+    <>
+      {isSubscribed ? (
+        <Button
+          variant="outline"
+          onClick={unsubscribe}
+          className="w-full sm:w-auto"
+        >
+          Unsubscribe from Notifications
+        </Button>
+      ) : (
+        <Button
+          variant="default"
+          onClick={subscribe}
+          className="w-full sm:w-auto"
+        >
+          Subscribe to Notifications
+        </Button>
+      )}
+    </>
   );
 }
