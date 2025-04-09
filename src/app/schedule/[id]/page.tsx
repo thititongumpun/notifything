@@ -38,6 +38,7 @@ import { Cronjob, PaymentPlan } from "@/types/Cronjob";
 ("@/app/types/Cronjob");
 import cronstrue from "cronstrue";
 import { Progress } from "@/components/ui/progress";
+import SubscribeButton from "@/components/subscribe-button";
 
 export default async function PaymentPlanDetailsPage({
   params,
@@ -426,6 +427,7 @@ export default async function PaymentPlanDetailsPage({
               Test Notification
             </Button>
             <Button variant="outline">Edit Schedule</Button>
+            <SubscribeButton jobId={job.id} />
           </CardFooter>
         </Card>
 
