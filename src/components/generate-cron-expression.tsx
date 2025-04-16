@@ -13,6 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "./ui/input";
 import cronstrue from "cronstrue";
+import { Button } from "./ui/button";
 
 // Type definitions
 type ScheduleType = "daily" | "weekly" | "monthly" | "yearly";
@@ -175,6 +176,9 @@ const MonthSelector = React.memo<MonthSelectorProps>(
 );
 
 const CronDisplay = React.memo<CronDisplayProps>(({ expression }) => {
+  // State to track if copy was successful
+  const [copied, setCopied] = useState(false);
+
   const humanReadable = useMemo(() => {
     try {
       return cronstrue.toString(expression, {
@@ -186,15 +190,38 @@ const CronDisplay = React.memo<CronDisplayProps>(({ expression }) => {
     }
   }, [expression]);
 
+  // Function to handle copy to clipboard
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(expression)
+      .then(() => {
+        setCopied(true);
+        // Reset copied state after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+
   return (
     <div className="mt-6 p-4 bg-gray-100 rounded-md space-y-4">
       <div>
         <h3 className="text-sm font-medium text-gray-700 mb-2">
           Generated Cron Expression:
         </h3>
-        <pre className="text-sm bg-gray-800 text-white p-3 rounded overflow-x-auto">
-          {expression}
-        </pre>
+        <div className="relative">
+          <pre className="text-sm bg-gray-800 text-white p-3 rounded overflow-x-auto">
+            {expression}
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white text-xs py-1 px-2 rounded"
+            aria-label="Copy cron expression to clipboard"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
       </div>
 
       <div>
@@ -212,6 +239,7 @@ const CronDisplay = React.memo<CronDisplayProps>(({ expression }) => {
     </div>
   );
 });
+
 const GenerateCronExpression: React.FC = () => {
   const [scheduleType, setScheduleType] = useState<ScheduleType>("daily");
   const [time, setTime] = useState<string>("12:00");

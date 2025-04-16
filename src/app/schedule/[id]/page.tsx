@@ -427,9 +427,10 @@ export default async function PaymentPlanDetailsPage({
               Test Notification
             </Button>
             <Button variant="outline">Edit Schedule</Button>
-            <SubscribeButton jobId={job.id} subscriptions={job.subscriptions} />
           </CardFooter>
         </Card>
+
+        <SubscribeButton jobId={job.id} subscriptions={job.subscriptions} />
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">

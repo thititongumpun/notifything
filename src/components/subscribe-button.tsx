@@ -41,6 +41,7 @@ export default function SubscribeButton({
       // Register service worker if not already registered
       const registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
+        updateViaCache: "none",
       });
 
       // Get VAPID public key from server
@@ -88,8 +89,6 @@ export default function SubscribeButton({
       if (subscription) {
         // Unsubscribe from browser
         await subscription.unsubscribe();
-
-        console.log(subscription);
 
         // Notify server
         await fetch(
