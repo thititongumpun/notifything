@@ -162,7 +162,7 @@ export default function PaymentPlanCard({ plan, cronExpression }: PaymentPlanCar
         </div>
 
         {/* Payments Table */}
-        <Accordion type="single" collapsible className="w-full pt-2">
+        <Accordion type="single" collapsible className="w-full pt-2" defaultValue="payments">
           <AccordionItem value="payments">
             <AccordionTrigger className="text-lg font-medium">
               Payment History ({plan.payments.length} payments recorded)

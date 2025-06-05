@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+"use client";
+
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 
 interface AddPaymentFormProps {
   paymentPlanId: string;
@@ -15,10 +21,10 @@ interface AddPaymentFormProps {
 
 const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(new Date());
-  const [amount, setAmount] = useState<string>('');
+  const [amount, setAmount] = useState<string>("");
   const [isPaid, setIsPaid] = useState<boolean>(true);
   const [paidDate, setPaidDate] = useState<Date | undefined>(new Date());
-  const [receiptNumber, setReceiptNumber] = useState<string>('');
+  const [receiptNumber, setReceiptNumber] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -26,17 +32,17 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
     setIsLoading(true);
 
     if (!dueDate) {
-      console.error('Due date is required');
+      console.error("Due date is required");
       // alert('Due date is required'); // Or use a toast notification
       setIsLoading(false);
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-        console.error('Amount must be a positive number');
-        // alert('Amount must be a positive number'); // Or use a toast notification
-        setIsLoading(false);
-        return;
+      console.error("Amount must be a positive number");
+      // alert('Amount must be a positive number'); // Or use a toast notification
+      setIsLoading(false);
+      return;
     }
 
     const paymentData = {
@@ -49,24 +55,33 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
       receiptNumber: isPaid && receiptNumber ? receiptNumber : null,
     };
 
-    console.log('Submitting Payment Data:', JSON.stringify(paymentData, null, 2));
+    console.log(
+      "Submitting Payment Data:",
+      JSON.stringify(paymentData, null, 2)
+    );
 
     try {
-      const response = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred while parsing error response' }));
-        console.error('Failed to save payment:', response.status, errorData);
+        const errorData = await response
+          .json()
+          .catch(() => ({
+            message: "An unknown error occurred while parsing error response",
+          }));
+        console.error("Failed to save payment:", response.status, errorData);
         // alert(`Error: ${errorData.message || response.statusText}`); // Or use a toast notification
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       const result = await response.json();
-      console.log('Payment saved:', result);
+      console.log("Payment saved:", result);
       // alert('Payment saved successfully!'); // Or use a toast notification
 
       // Optional: Reset form fields or close dialog here
@@ -77,7 +92,7 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
       // setReceiptNumber('');
       // Consider calling a prop function to close dialog if applicable
     } catch (error: any) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       // alert(`Submission error: ${error.message}`); // Or use a toast notification
     } finally {
       setIsLoading(false);
@@ -90,7 +105,13 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
 
       <div className="space-y-1">
         <Label htmlFor="payment_month">Payment Month</Label>
-        <Input id="payment_month" type="number" value={props.nextPaymentMonth} readOnly className="mt-1" />
+        <Input
+          id="payment_month"
+          type="number"
+          value={props.nextPaymentMonth}
+          readOnly
+          className="mt-1"
+        />
       </div>
 
       <div className="space-y-1">
@@ -139,11 +160,15 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
           onChange={(e) => setIsPaid(e.target.checked)}
           className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
-        <Label htmlFor="is_paid" className="font-normal">Is Paid?</Label>
+        <Label htmlFor="is_paid" className="font-normal">
+          Is Paid?
+        </Label>
       </div>
 
       {isPaid && (
-        <div className="space-y-4"> {/* Wrapped conditional fields in a div to maintain spacing flow */}
+        <div className="space-y-4">
+          {" "}
+          {/* Wrapped conditional fields in a div to maintain spacing flow */}
           <div className="space-y-1">
             <Label htmlFor="paid_date">Paid Date</Label>
             <Popover>
@@ -156,7 +181,11 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {paidDate ? format(paidDate, "PPP") : <span>Pick a date</span>}
+                  {paidDate ? (
+                    format(paidDate, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -169,7 +198,6 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
               </PopoverContent>
             </Popover>
           </div>
-
           <div className="space-y-1">
             <Label htmlFor="receipt_number">Receipt Number</Label>
             <Input
@@ -185,7 +213,7 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
       )}
 
       <Button type="submit" disabled={isLoading} className="w-full mt-2">
-        {isLoading ? 'Saving...' : 'Save Payment'}
+        {isLoading ? "Saving..." : "Save Payment"}
       </Button>
     </form>
   );
