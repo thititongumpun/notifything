@@ -61,7 +61,7 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = (props) => {
     );
 
     try {
-      const response = await fetch("/api/payments", {
+      const response = await fetch("/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData),
