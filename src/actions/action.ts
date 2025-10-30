@@ -1,7 +1,7 @@
-'use server'
+"use server";
 
-import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -12,42 +12,63 @@ const formSchema = z.object({
   }),
 });
 
+const paymentFormSchema = z.object({
+  paymentPlanId: z.string(),
+  dueDate: z.string().min(5, {
+    message: "Due date must be at least 5 characters.",
+  }),
+  amount: z.string().min(1, {
+    message: "Amount must be at least 1 character.",
+  }),
+  isPaid: z.boolean().default(true),
+  paidDate: z.string().min(5, {
+    message: "Paid date must be at least 5 characters.",
+  }),
+  paymentMonth: z.string().min(5, {
+    message: "Payment month must be at least 5 characters.",
+  }),
+  receiptNumber: z.string().optional(),
+});
+
 // Define the return type for better type safety
 type ActionResult = {
   success: boolean;
   error?: string;
 };
 
-export async function create(data: z.infer<typeof formSchema>): Promise<ActionResult> {
+export async function create(
+  data: z.infer<typeof formSchema>,
+): Promise<ActionResult> {
   try {
     // Validate the data on the server side
     const validatedData = formSchema.parse(data);
 
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/addjob`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(validatedData),
     });
 
     // Revalidate the path after creating the schedule
-    revalidatePath('/'); // Adjust the path as needed
+    revalidatePath("/"); // Adjust the path as needed
 
     return { success: true };
   } catch (error) {
-    console.error('Error creating schedule:', error);
+    console.error("Error creating schedule:", error);
 
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: 'Validation failed: ' + error.errors.map(e => e.message).join(', ')
+        error:
+          "Validation failed: " + error.errors.map((e) => e.message).join(", "),
       };
     }
 
     return {
       success: false,
-      error: 'Failed to create schedule. Please try again later.'
+      error: "Failed to create schedule. Please try again later.",
     };
   }
 }
@@ -62,7 +83,10 @@ const updateFormSchema = z.object({
   enabled: z.boolean(),
 });
 
-export async function update(id: string, data: z.infer<typeof updateFormSchema>): Promise<ActionResult> {
+export async function update(
+  id: string,
+  data: z.infer<typeof updateFormSchema>,
+): Promise<ActionResult> {
   try {
     // Validate the data on the server side
     const validatedData = updateFormSchema.parse(data);
@@ -70,50 +94,86 @@ export async function update(id: string, data: z.infer<typeof updateFormSchema>)
     validatedData.enabled = !validatedData.enabled;
 
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(validatedData),
     });
 
     // Revalidate the path after updating the schedule
-    revalidatePath('/');
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating schedule:', error);
+    console.error("Error updating schedule:", error);
 
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: 'Validation failed: ' + error.errors.map(e => e.message).join(', ')
+        error:
+          "Validation failed: " + error.errors.map((e) => e.message).join(", "),
       };
     }
 
     return {
       success: false,
-      error: 'Failed to update schedule. Please try again later.'
+      error: "Failed to update schedule. Please try again later.",
     };
   }
 }
 
 export async function remove(id: string): Promise<ActionResult> {
   try {
-
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
 
-
-    revalidatePath('/');
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating schedule:', error);
+    console.error("Error updating schedule:", error);
     return {
       success: false,
-      error: 'Failed to update schedule. Please try again later.'
+      error: "Failed to update schedule. Please try again later.",
+    };
+  }
+}
+
+export async function createPayment(
+  data: z.infer<typeof paymentFormSchema>,
+): Promise<ActionResult> {
+  try {
+    // Validate the data on the server side
+    const validatedData = paymentFormSchema.parse(data);
+
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(validatedData),
+    });
+
+    // Revalidate the path after creating the schedule
+    revalidatePath("/"); // Adjust the path as needed
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating schedule:", error);
+
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error:
+          "Validation failed: " + error.errors.map((e) => e.message).join(", "),
+      };
+    }
+
+    return {
+      success: false,
+      error: "Failed to create schedule. Please try again later.",
     };
   }
 }

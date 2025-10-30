@@ -13,7 +13,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "./ui/input";
 import cronstrue from "cronstrue";
-import { Button } from "./ui/button";
 
 // Type definitions
 type ScheduleType = "daily" | "weekly" | "monthly" | "yearly";
@@ -85,7 +84,7 @@ const ScheduleTypeSelector = React.memo<ScheduleTypeSelectorProps>(
         </SelectContent>
       </Select>
     </div>
-  )
+  ),
 );
 
 const TimeInput = React.memo<TimeInputProps>(({ value, onChange }) => (
@@ -122,7 +121,7 @@ const DayOfWeekSelector = React.memo<DayOfWeekSelectorProps>(
         </SelectContent>
       </Select>
     </div>
-  )
+  ),
 );
 
 const DayOfMonthSelector = React.memo<DayOfMonthSelectorProps>(
@@ -147,7 +146,7 @@ const DayOfMonthSelector = React.memo<DayOfMonthSelectorProps>(
         </SelectContent>
       </Select>
     </div>
-  )
+  ),
 );
 
 const MonthSelector = React.memo<MonthSelectorProps>(
@@ -172,7 +171,7 @@ const MonthSelector = React.memo<MonthSelectorProps>(
         </SelectContent>
       </Select>
     </div>
-  )
+  ),
 );
 
 const CronDisplay = React.memo<CronDisplayProps>(({ expression }) => {
@@ -256,7 +255,7 @@ const GenerateCronExpression: React.FC = () => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTime(e.target.value);
     },
-    []
+    [],
   );
 
   const handleDayOfMonthChange = useCallback((value: string) => {
@@ -274,7 +273,7 @@ const GenerateCronExpression: React.FC = () => {
   // Memoize data arrays
   const daysOfMonth = useMemo<number[]>(
     () => Array.from({ length: 31 }, (_, i) => i + 1),
-    []
+    [],
   );
 
   const months = useMemo<Month[]>(
@@ -292,7 +291,7 @@ const GenerateCronExpression: React.FC = () => {
       { value: 11, Label: "November" },
       { value: 12, Label: "December" },
     ],
-    []
+    [],
   );
 
   const daysOfWeek = useMemo<DayOfWeek[]>(
@@ -305,7 +304,7 @@ const GenerateCronExpression: React.FC = () => {
       { value: 5, Label: "Friday" },
       { value: 6, Label: "Saturday" },
     ],
-    []
+    [],
   );
 
   // Memoize cron expression calculation
