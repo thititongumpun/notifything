@@ -14,19 +14,17 @@ const formSchema = z.object({
 
 const paymentFormSchema = z.object({
   paymentPlanId: z.string(),
-  dueDate: z.string().min(5, {
-    message: "Due date must be at least 5 characters.",
+  dueDate: z.date({
+    required_error: "Due date is required.",
   }),
-  amount: z.string().min(1, {
-    message: "Amount must be at least 1 character.",
+  amount: z.coerce.number().min(1, {
+    message: "Amount must be at least 1."
   }),
-  isPaid: z.boolean().default(true),
-  paidDate: z.string().min(5, {
-    message: "Paid date must be at least 5 characters.",
+  isPaid: z.boolean(),
+  paidDate: z.date({
+    required_error: "Paid date is required.",
   }),
-  paymentMonth: z.string().min(5, {
-    message: "Payment month must be at least 5 characters.",
-  }),
+  paymentMonth: z.number(),
   receiptNumber: z.string().optional(),
 });
 
@@ -148,7 +146,7 @@ export async function createPayment(
     // Validate the data on the server side
     const validatedData = paymentFormSchema.parse(data);
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments`, {
+    const d = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,12 +154,14 @@ export async function createPayment(
       body: JSON.stringify(validatedData),
     });
 
+    console.log(d);
+
     // Revalidate the path after creating the schedule
     revalidatePath("/"); // Adjust the path as needed
 
     return { success: true };
   } catch (error) {
-    console.error("Error creating schedule:", error);
+    console.error("Error creating payment:", error);
 
     if (error instanceof z.ZodError) {
       return {

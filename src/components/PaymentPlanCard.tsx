@@ -4,7 +4,6 @@ import {
   Clock,
   CreditCard,
   MessageCircle,
-  // Plus, // Not used here
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

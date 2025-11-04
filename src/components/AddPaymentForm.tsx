@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -18,7 +17,17 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Form } from "./ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
+import { Checkbox } from "./ui/checkbox";
+import { Spinner } from "./ui/spinner";
 
 interface AddPaymentFormProps {
   paymentPlanId: string;
@@ -27,19 +36,17 @@ interface AddPaymentFormProps {
 
 const paymentFormSchema = z.object({
   paymentPlanId: z.string(),
-  dueDate: z.string().min(5, {
-    message: "Due date must be at least 5 characters.",
+  dueDate: z.date({
+    required_error: "Due date is required.",
   }),
-  amount: z.string().min(1, {
-    message: "Amount must be at least 1 character.",
+  amount: z.coerce.number().min(1, {
+    message: "Amount must be at least 1.",
   }),
-  isPaid: z.boolean().default(true),
-  paidDate: z.string().min(5, {
-    message: "Paid date must be at least 5 characters.",
+  isPaid: z.boolean(),
+  paidDate: z.date({
+    required_error: "Paid date is required.",
   }),
-  paymentMonth: z.string().min(5, {
-    message: "Payment month must be at least 5 characters.",
-  }),
+  paymentMonth: z.number(),
   receiptNumber: z.string().optional(),
 });
 
@@ -47,233 +54,182 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = ({
   paymentPlanId,
   nextPaymentMonth,
 }: AddPaymentFormProps) => {
-  const [dueDate, setDueDate] = useState<Date | undefined>(new Date());
-  const [amount, setAmount] = useState<string>("");
-  const [isPaid, setIsPaid] = useState<boolean>(true);
-  const [paidDate, setPaidDate] = useState<Date | undefined>(new Date());
-  const [receiptNumber, setReceiptNumber] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [isPending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof paymentFormSchema>>({
     resolver: zodResolver(paymentFormSchema),
-    // defaultValues: {
-    //   paymentPlanId: "",
-    //   cron: "",
-    // },
+    defaultValues: {
+      paymentPlanId: paymentPlanId,
+      paymentMonth: nextPaymentMonth,
+      dueDate: new Date(),
+      amount: 0,
+      isPaid: true,
+      paidDate: new Date(),
+      receiptNumber: "",
+    },
   });
 
   function onSubmit(values: z.infer<typeof paymentFormSchema>) {
     startTransition(async () => {
+      console.log(values);
       try {
         const result = await createPayment(values);
 
         if (result.success) {
-          toast.success("Schedule created", {
+          toast.success("Payment created", {
             description: `Schedule "${values.paymentMonth}" has been created successfully.`,
           });
         } else {
-          toast.error("Failed to create schedule", {
+          toast.error("Failed to create payment", {
             description: result.error || "An unknown error occurred",
           });
         }
       } catch (error) {
         toast.error("Error", {
-          description: "Failed to create schedule. Please try again.",
+          description: "Failed to create payment. Please try again.",
         });
         console.error(error);
       }
     });
   }
 
-  // const handleSubmit = async (event: React.FormEvent) => {
-  //   event.preventDefault();
-  //   setIsLoading(true);
-
-  //   if (!dueDate) {
-  //     console.error("Due date is required");
-  //     // alert('Due date is required'); // Or use a toast notification
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   if (!amount || parseFloat(amount) <= 0) {
-  //     console.error("Amount must be a positive number");
-  //     // alert('Amount must be a positive number'); // Or use a toast notification
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   const paymentData = {
-  //     paymentPlanId: paymentPlanId,
-  //     dueDate: dueDate.toISOString(),
-  //     amount: parseFloat(amount),
-  //     isPaid: isPaid,
-  //     paidDate: isPaid && paidDate ? paidDate.toISOString() : null,
-  //     paymentMonth: nextPaymentMonth,
-  //     receiptNumber: isPaid && receiptNumber ? receiptNumber : null,
-  //   };
-
-  //   console.log(
-  //     "Submitting Payment Data:",
-  //     JSON.stringify(paymentData, null, 2),
-  //   );
-
-  //   try {
-  //     // const response = await fetch("/payments", {
-  //     //   method: "POST",
-  //     //   headers: { "Content-Type": "application/json" },
-  //     //   body: JSON.stringify(paymentData),
-  //     // });
-
-  //     const response = await createPayment(paymentData);
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json().catch(() => ({
-  //         message: "An unknown error occurred while parsing error response",
-  //       }));
-  //       console.error("Failed to save payment:", response.status, errorData);
-  //       // alert(`Error: ${errorData.message || response.statusText}`); // Or use a toast notification
-  //       throw new Error(
-  //         errorData.message || `HTTP error! status: ${response.status}`,
-  //       );
-  //     }
-
-  //     const result = await response.json();
-  //     console.log("Payment saved:", result);
-  //     // alert('Payment saved successfully!'); // Or use a toast notification
-
-  //     // Optional: Reset form fields or close dialog here
-  //     // setDueDate(undefined);
-  //     // setAmount('');
-  //     // setIsPaid(true);
-  //     // setPaidDate(undefined);
-  //     // setReceiptNumber('');
-  //     // Consider calling a prop function to close dialog if applicable
-  //   } catch (error: any) {
-  //     console.error("Error submitting form:", error);
-  //     // alert(`Submission error: ${error.message}`); // Or use a toast notification
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <input type="hidden" name="payment_plan_id" value={paymentPlanId} />
+        {/* <input type="hidden" name="payment_plan_id" value={paymentPlanId} /> */}
+        <FormField
+          control={form.control}
+          name="paymentMonth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment Month</FormLabel>
+              <FormControl>
+                <Input placeholder="Payment Month" {...field} />
+              </FormControl>
+              <FormDescription>Payment Month</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="space-y-1">
-          <Label htmlFor="payment_month">Payment Month</Label>
-          <Input
-            id="payment_month"
-            type="number"
-            value={nextPaymentMonth}
-            readOnly
-            className="mt-1"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <Label htmlFor="due_date">Due Date</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !dueDate && "text-muted-foreground",
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={dueDate}
-                onSelect={setDueDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="space-y-1">
-          <Label htmlFor="amount">Amount</Label>
-          <Input
-            id="amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
-            className="mt-1"
-          />
-        </div>
-
-        <div className="flex items-center space-x-2 pt-2">
-          <input
-            type="checkbox"
-            id="is_paid"
-            checked={isPaid}
-            onChange={(e) => setIsPaid(e.target.checked)}
-            className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <Label htmlFor="is_paid" className="font-normal">
-            Is Paid?
-          </Label>
-        </div>
-
-        {isPaid && (
-          <div className="space-y-4">
-            {" "}
-            {/* Wrapped conditional fields in a div to maintain spacing flow */}
-            <div className="space-y-1">
-              <Label htmlFor="paid_date">Paid Date</Label>
+        <FormField
+          control={form.control}
+          name="dueDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Due Date</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !paidDate && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {paidDate ? (
-                      format(paidDate, "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={paidDate}
-                    onSelect={setPaidDate}
+                    selected={field.value}
+                    onSelect={field.onChange}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="receipt_number">Receipt Number</Label>
-              <Input
-                id="receipt_number"
-                type="text"
-                value={receiptNumber}
-                onChange={(e) => setReceiptNumber(e.target.value)}
-                placeholder="Enter receipt number"
-                className="mt-1"
-              />
-            </div>
-          </div>
-        )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Button type="submit" disabled={isLoading} className="w-full mt-2">
-          {isLoading ? "Saving..." : "Save Payment"}
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <FormControl>
+                <Input placeholder="Amount" {...field} type="number" />
+              </FormControl>
+              <FormDescription>Enter amount</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isPaid"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Is Paid?</FormLabel>
+              <FormControl>
+                <Checkbox
+                  name={field.name}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="paidDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Paid Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isPending} className="w-full mt-2">
+          {isPending ? (
+            <>
+              <Spinner /> Saving
+            </>
+          ) : (
+            "Save Payment"
+          )}
         </Button>
       </form>
     </Form>
