@@ -24,7 +24,26 @@ export default async function PaymentPlanDetailsPage({
   const { id } = await params;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`);
-  // TODO: Add error handling for fetch request
+  
+  if (!res.ok) {
+    console.error(`Failed to fetch job details: ${res.status} ${res.statusText}`);
+    // Return null or handle error appropriately to show the "not found" state
+    return (
+      <div className="container mx-auto py-6 px-4 sm:px-6 lg:py-10 lg:px-8">
+        <BackButton className="mb-4 sm:mb-6">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Schedules
+        </BackButton>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              Schedule not found or an error occurred while fetching details.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const job: Cronjob = await res.json();
 
   if (!job || !job.id) { // Added !job.id to check for empty job object

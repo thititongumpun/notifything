@@ -7,6 +7,10 @@ async function fetchSchedules() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs`, {
     cache: "no-store",
   });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to fetch schedules: ${res.status} ${res.statusText} - ${text}`);
+  }
   const data = await res.json();
   return data;
 }
