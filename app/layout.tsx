@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Notifything",
   description: "Notification and payment tracking",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -45,6 +45,7 @@ export default function RootLayout({
           <link rel="apple-touch-icon" href="/icons/icon.svg" />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <ServiceWorkerRegistration />
           {children}
         </body>
       </html>
