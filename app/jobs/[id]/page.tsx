@@ -43,115 +43,124 @@ export default async function JobDetailPage({ params }: Props) {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full">
+      <div className="flex flex-col gap-[var(--space-sm)] max-w-3xl mx-auto w-full">
         {/* Back */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
+          className="inline-flex min-h-[44px] items-center gap-1.5 text-[length:var(--text-sm)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
 
-        {/* Job info */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-800 flex items-center justify-between gap-4">
-            <h1 className="text-lg font-semibold text-white">{job.name}</h1>
+        {/* Job header */}
+        <header className="flex flex-col gap-[var(--space-2xs)] pb-[var(--space-2xs)] border-b border-[var(--color-rule)]">
+          <div className="flex flex-wrap items-center justify-between gap-[var(--space-2xs)] min-w-0">
+            <h1 className="font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
+              {job.name}
+            </h1>
             <span
-              className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
+              className={`inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border px-2.5 py-1 text-[length:var(--text-xs)] font-medium leading-none ${
                 job.enabled
-                  ? "bg-emerald-500/15 text-emerald-400"
-                  : "bg-neutral-700/50 text-neutral-400"
+                  ? "border-[var(--color-accent)] text-[var(--color-accent)]"
+                  : "border-[var(--color-rule)] text-[var(--color-ink-2)]"
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  job.enabled ? "bg-emerald-400" : "bg-neutral-500"
+                  job.enabled ? "bg-[var(--color-accent)]" : "bg-[var(--color-rule)]"
                 }`}
               />
               {job.enabled ? "Enabled" : "Disabled"}
             </span>
           </div>
-          <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-neutral-400 mb-1">Cron Expression</p>
-              <code className="text-sm bg-neutral-800 text-indigo-300 px-2.5 py-1.5 rounded font-mono">
-                {job.cron.trim()}
-              </code>
-            </div>
-            <div>
-              <p className="text-xs text-neutral-400 mb-1">Job ID</p>
-              <code className="text-xs text-neutral-400 font-mono break-all">{job.id}</code>
-            </div>
-            <div>
-              <p className="text-xs text-neutral-400 mb-1">Last Run</p>
-              <p className="text-sm text-white">{formatDate(job.lastRunAt)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-neutral-400 mb-1">Created</p>
-              <p className="text-sm text-white">{formatDate(job.createdAt)}</p>
-            </div>
+          {/* Meta in mono */}
+          <div className="flex flex-col gap-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] text-[var(--color-ink-2)] min-w-0">
+            <p className="[overflow-wrap:anywhere]">{job.cron.trim()}</p>
+            <p className="text-[length:var(--text-xs)] [overflow-wrap:anywhere]">{job.id}</p>
           </div>
-        </div>
+        </header>
+
+        {/* Job facts */}
+        <section className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-[var(--space-xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
+          <div>
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Cron Expression</p>
+            <code className="font-mono text-[length:var(--text-sm)] text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere] break-all">
+              {job.cron.trim()}
+            </code>
+          </div>
+          <div>
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Job ID</p>
+            <code className="font-mono text-[length:var(--text-xs)] text-[var(--color-ink-2)] break-all">{job.id}</code>
+          </div>
+          <div>
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Last Run</p>
+            <p className="font-mono text-[length:var(--text-sm)] text-[var(--color-ink)]">{formatDate(job.lastRunAt)}</p>
+          </div>
+          <div>
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Created</p>
+            <p className="font-mono text-[length:var(--text-sm)] text-[var(--color-ink)]">{formatDate(job.createdAt)}</p>
+          </div>
+        </section>
 
         {/* Subscription */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-800">
-            <h2 className="text-base font-semibold text-white">Push Subscription</h2>
-          </div>
+        <section className="pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
+          <h2 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)]">
+            Push Subscription
+          </h2>
           {job.subscriptions ? (
-            <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="mt-[var(--space-2xs)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-[var(--space-xs)]">
               <div>
-                <p className="text-xs text-neutral-400 mb-1">Status</p>
+                <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Status</p>
                 <span
-                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
+                  className={`inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none ${
                     job.subscriptions.isActive
-                      ? "bg-emerald-500/15 text-emerald-400"
-                      : "bg-neutral-700/50 text-neutral-400"
+                      ? "border-[var(--color-accent)] text-[var(--color-accent)]"
+                      : "border-[var(--color-rule)] text-[var(--color-ink-2)]"
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      job.subscriptions.isActive ? "bg-emerald-400" : "bg-neutral-500"
+                      job.subscriptions.isActive ? "bg-[var(--color-accent)]" : "bg-[var(--color-rule)]"
                     }`}
                   />
                   {job.subscriptions.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
               <div>
-                <p className="text-xs text-neutral-400 mb-1">Subscription ID</p>
-                <code className="text-xs text-neutral-400 font-mono break-all">
+                <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Subscription ID</p>
+                <code className="font-mono text-[length:var(--text-xs)] text-[var(--color-ink-2)] break-all">
                   {job.subscriptions.id}
                 </code>
               </div>
               <div>
-                <p className="text-xs text-neutral-400 mb-1">Subscribed At</p>
-                <p className="text-sm text-white">{formatDate(job.subscriptions.createdAt)}</p>
+                <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Subscribed At</p>
+                <p className="font-mono text-[length:var(--text-sm)] text-[var(--color-ink)]">{formatDate(job.subscriptions.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs text-neutral-400 mb-1">Updated At</p>
-                <p className="text-sm text-white">{formatDate(job.subscriptions.updatedAt)}</p>
+                <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Updated At</p>
+                <p className="font-mono text-[length:var(--text-sm)] text-[var(--color-ink)]">{formatDate(job.subscriptions.updatedAt)}</p>
               </div>
               {pushEndpoint && (
-                <div className="sm:col-span-2">
-                  <p className="text-xs text-neutral-400 mb-1">Push Endpoint</p>
-                  <p className="text-xs text-neutral-500 font-mono break-all leading-relaxed">
+                <div className="col-span-full min-w-0">
+                  <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mb-[var(--space-3xs)]">Push Endpoint</p>
+                  <p className="font-mono text-[length:var(--text-xs)] text-[var(--color-ink-2)] break-all leading-relaxed min-w-0 [overflow-wrap:anywhere]">
                     {pushEndpoint}
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <p className="px-5 py-6 text-sm text-neutral-400">No subscription registered.</p>
+            <p className="mt-[var(--space-2xs)] text-[length:var(--text-sm)] text-[var(--color-ink-2)]">No subscription registered.</p>
           )}
-        </div>
+        </section>
 
         {/* Payment Plans */}
-        <div className="flex flex-col gap-4">
-          <h2 className="text-base font-semibold text-white">
+        <section className="flex flex-col gap-[var(--space-2xs)]">
+          <h2 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)]">
             Payment Plans
             {job.paymentPlans.length > 0 && (
-              <span className="ml-2 text-xs font-normal text-neutral-400">
+              <span className="ml-2 font-body text-[length:var(--text-sm)] font-normal text-[var(--color-ink-2)]">
                 ({job.paymentPlans.length})
               </span>
             )}
@@ -161,11 +170,11 @@ export default async function JobDetailPage({ params }: Props) {
               <PaymentPlanCard key={plan.id} plan={plan} />
             ))
           ) : (
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-6">
-              <p className="text-sm text-neutral-400">No payment plans attached.</p>
-            </div>
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] py-[var(--space-2xs)]">
+              No payment plans attached.
+            </p>
           )}
-        </div>
+        </section>
       </div>
     </AppShell>
   );

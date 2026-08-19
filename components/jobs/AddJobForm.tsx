@@ -14,6 +14,9 @@ const CRON_PRESETS = [
   { label: "Every 5 minutes", value: "*/5 * * * *" },
 ];
 
+const inputClass =
+  "w-full bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-[var(--radius-input)] px-3 min-h-[44px] py-2 text-[length:var(--text-sm)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-2)] focus:outline-none transition-colors duration-[var(--dur-short)]";
+
 export function AddJobForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -45,96 +48,112 @@ export function AddJobForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-lg mx-auto w-full">
+    <div className="flex flex-col gap-[var(--space-2xs)] w-full">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
+        className="inline-flex min-h-[44px] items-center gap-1.5 text-[length:var(--text-sm)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
       </Link>
 
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 overflow-hidden">
-        <div className="px-5 py-4 border-b border-neutral-800">
-          <h1 className="text-base font-semibold text-white">Add Job</h1>
-          <p className="text-xs text-neutral-400 mt-0.5">Create a new scheduled notification job.</p>
+      <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] overflow-hidden">
+        <div className="px-[var(--space-xs)] py-[var(--space-2xs)] border-b border-[var(--color-rule)]">
+          <h1 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)]">
+            Add Job
+          </h1>
+          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mt-[var(--space-3xs)]">
+            Create a new scheduled notification job.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-5 py-5 flex flex-col gap-5">
-          {/* Name */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-neutral-300">
-              Name <span className="text-red-400">*</span>
+        <form onSubmit={handleSubmit} className="px-[var(--space-xs)] py-[var(--space-xs)] flex flex-col">
+          {/* Name group */}
+          <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
+            <label className="text-[length:var(--text-sm)] font-medium text-[var(--color-ink-2)]" htmlFor="job-name">
+              Name <span className="text-[var(--color-danger)]">*</span>
             </label>
             <input
+              id="job-name"
               required
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. ค่างวดรถ"
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className={inputClass}
             />
           </div>
 
-          {/* Cron */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-neutral-300">
-              Cron Expression <span className="text-red-400">*</span>
+          <hr className="border-t border-[var(--color-rule)]" />
+
+          {/* Cron group */}
+          <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
+            <label className="text-[length:var(--text-sm)] font-medium text-[var(--color-ink-2)]" htmlFor="job-cron">
+              Cron Expression <span className="text-[var(--color-danger)]">*</span>
             </label>
             <input
+              id="job-cron"
               required
               type="text"
               value={cron}
               onChange={(e) => setCron(e.target.value)}
               placeholder="e.g. 0 12 5 * *"
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-500 font-mono focus:outline-none focus:border-indigo-500 transition-colors"
+              className={`${inputClass} font-mono`}
             />
             {/* Presets */}
-            <div className="flex flex-wrap gap-1.5 mt-1">
+            <div className="flex flex-wrap gap-[var(--space-3xs)] mt-[var(--space-3xs)]">
               {CRON_PRESETS.map((p) => (
                 <button
                   key={p.value}
                   type="button"
                   onClick={() => setCron(p.value)}
-                  className="text-xs px-2 py-1 rounded-md bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors font-mono"
+                  className={`min-h-[44px] text-[length:var(--text-sm)] px-3 py-2 rounded-[var(--radius-pill)] border transition-[color,border-color,transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] active:translate-y-[1px] ${
+                    cron.trim() === p.value
+                      ? "border-[var(--color-accent)] text-[var(--color-accent)]"
+                      : "border-[var(--color-rule)] text-[var(--color-ink-2)] hover:border-[var(--color-ink-2)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]"
+                  }`}
                 >
-                  {p.value}
-                  <span className="font-sans text-neutral-500 ml-1">— {p.label}</span>
+                  <span className="font-mono">{p.value}</span>
+                  <span className="ml-1.5">— {p.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
+          <hr className="border-t border-[var(--color-rule)]" />
+
           {/* Preview */}
           {cron && (
-            <div className="rounded-lg bg-neutral-800/60 border border-neutral-700 px-3 py-2.5 flex items-center gap-2">
-              <span className="text-xs text-neutral-400">Preview:</span>
-              <code className="text-xs text-indigo-300 font-mono">{cron.trim()}</code>
+            <div className="flex items-center gap-[var(--space-3xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)]">
+              <span className="text-[var(--color-ink-2)]">Preview:</span>
+              <code className="font-mono text-[var(--color-accent)] min-w-0 [overflow-wrap:anywhere]">
+                {cron.trim()}
+              </code>
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+            <p className="text-[length:var(--text-sm)] text-[var(--color-danger)] border border-[var(--color-danger)] rounded-[var(--radius-input)] px-3 py-2">
               {error}
             </p>
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex items-center gap-[var(--space-2xs)] pt-[var(--space-2xs)] border-t border-[var(--color-rule)] mt-[var(--space-2xs)]">
             <Link
               href="/dashboard"
-              className="px-4 py-2 rounded-lg text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+              className="inline-flex min-h-[44px] items-center px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] text-[var(--color-ink-2)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading || !name.trim() || !cron.trim()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] transition-[transform,filter] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {loading ? "Creating…" : "Create Job"}
+              {loading ? "Creating…" : "Add job"}
             </button>
           </div>
         </form>

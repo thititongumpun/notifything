@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#16181d",
 };
 
 export default function RootLayout({
@@ -37,7 +37,7 @@ export default function RootLayout({
     <ClerkProvider
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       appearance={{
-        variables: { colorBackground: "#0a0a0a", colorText: "#ffffff", colorPrimary: "#6366f1" },
+        variables: { colorBackground: "#16181d", colorText: "#f2f3f5", colorPrimary: "#7c7cf4" },
       }}
     >
       <html lang="en" className="dark">

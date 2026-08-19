@@ -1,16 +1,11 @@
 "use client";
 
 import { Avatar, Dropdown, Label } from "@heroui/react";
-import { Menu } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 
-interface TopBarProps {
-  title: string;
-  onMenuOpen: () => void;
-}
-
-export function TopBar({ title, onMenuOpen }: TopBarProps) {
+export function TopBar({ title }: { title: string }) {
   const { user } = useClerkAuth();
   const { signOut } = useClerk();
 
@@ -20,16 +15,21 @@ export function TopBar({ title, onMenuOpen }: TopBarProps) {
       : user.fullName?.[0] ?? "U";
 
   return (
-    <header className="flex items-center justify-between px-4 lg:px-6 h-16 border-b border-neutral-800 bg-neutral-950 sticky top-0 z-20">
-      <div className="flex items-center gap-3">
-        <button
-          className="lg:hidden p-2 rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
-          onClick={onMenuOpen}
-          aria-label="Open menu"
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-2 h-14 px-4 md:px-6 border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
+      {/* Mobile: wordmark (sidebar hidden below md); Desktop: page title */}
+      <div className="flex items-center gap-2 min-w-0 md:min-w-0">
+        <span className="flex md:hidden items-center gap-2 shrink-0">
+          <Bell className="w-5 h-5 text-[var(--color-accent)]" />
+          <span className="text-[var(--text-md)] font-semibold text-[var(--color-ink)] whitespace-nowrap">
+            Notifything
+          </span>
+        </span>
+        <h1
+          className="hidden md:block text-sm font-semibold text-[var(--color-ink)] min-w-0"
+          style={{ fontSize: "1rem", overflowWrap: "anywhere" }}
         >
-          <Menu className="w-5 h-5" />
-        </button>
-        <h1 className="text-lg font-semibold text-white">{title}</h1>
+          {title}
+        </h1>
       </div>
       <Dropdown>
         <Dropdown.Trigger>
@@ -42,14 +42,14 @@ export function TopBar({ title, onMenuOpen }: TopBarProps) {
             <Dropdown.Item id="profile" textValue={user.fullName}>
               <div>
                 <p className="text-sm font-medium">{user.fullName}</p>
-                <p className="text-xs text-neutral-400">{user.emailAddress}</p>
+                <p className="text-xs text-[var(--color-ink-2)]">{user.emailAddress}</p>
               </div>
             </Dropdown.Item>
             <Dropdown.Item id="settings" textValue="Settings">
               <Label>Settings</Label>
             </Dropdown.Item>
             <Dropdown.Item id="logout" textValue="Log out">
-              <Label className="text-red-400">Log out</Label>
+              <Label className="text-[var(--color-danger)]">Log out</Label>
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown.Popover>

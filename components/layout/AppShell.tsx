@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -22,19 +21,16 @@ function getTitle(path: string): string {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-neutral-950">
+    <div className="flex min-h-screen bg-[var(--color-paper)]">
       <Sidebar activePath={pathname} />
-      <MobileNav
-        isOpen={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-        activePath={pathname}
-      />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar title={getTitle(pathname)} onMenuOpen={() => setMobileOpen(true)} />
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <TopBar title={getTitle(pathname)} />
+        <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 md:p-6 pb-24 md:pb-6">
+          {children}
+        </main>
+        <MobileNav activePath={pathname} />
       </div>
     </div>
   );

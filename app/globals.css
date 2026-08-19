@@ -1,2 +1,29 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+@import "../tokens.css";
+
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
+ * pre-emit critique: P4 H5 E5 S4 R5 V4 */
+
+html, body {
+  overflow-x: clip;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-style: normal;
+  letter-spacing: -0.02em;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}

@@ -26,37 +26,59 @@ export default async function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-6">
-        {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
-            <p className="text-xs text-neutral-400 uppercase tracking-wide">Total Jobs</p>
-            <p className="text-2xl font-bold text-white mt-1">{jobs.length}</p>
+      <div className="flex flex-col gap-[var(--space-md)]">
+        {/* Stat strip */}
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-[var(--space-2xs)] sm:grid-cols-3">
+          <div
+            className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]"
+          >
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
+              Total Jobs
+            </p>
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] font-mono">
+              {jobs.length}
+            </p>
           </div>
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
-            <p className="text-xs text-neutral-400 uppercase tracking-wide">Active</p>
-            <p className="text-2xl font-bold text-emerald-400 mt-1">{activeCount}</p>
+          <div
+            className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]"
+          >
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
+              Active
+            </p>
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-accent)] font-mono">
+              {activeCount}
+            </p>
           </div>
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 col-span-2 sm:col-span-1">
-            <p className="text-xs text-neutral-400 uppercase tracking-wide">Disabled</p>
-            <p className="text-2xl font-bold text-neutral-400 mt-1">{jobs.length - activeCount}</p>
+          <div
+            className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)] col-span-1 sm:col-span-1"
+          >
+            <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
+              Disabled
+            </p>
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] font-mono">
+              {jobs.length - activeCount}
+            </p>
           </div>
         </div>
 
         {/* Jobs table */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-800 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-white">Scheduled Jobs</h2>
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] overflow-hidden">
+          <div className="px-[var(--space-xs)] py-[var(--space-2xs)] border-b border-[var(--color-rule)] flex items-center justify-between gap-[var(--space-2xs)]">
+            <h2 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
+              Scheduled Jobs
+            </h2>
             <Link
               href="/jobs/new"
-              className="inline-flex items-center gap-1.5 text-xs font-medium bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg transition-colors"
+              className="inline-flex min-h-[44px] md:min-h-0 items-center justify-center gap-1.5 text-[length:var(--text-sm)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] px-3 py-2 rounded-[10px] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-accent)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px]"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Job
             </Link>
           </div>
           {error ? (
-            <div className="px-5 py-8 text-center text-red-400 text-sm">{error}</div>
+            <div className="px-[var(--space-xs)] py-[var(--space-md)] text-center text-[length:var(--text-sm)] text-[var(--color-danger)]">
+              {error}
+            </div>
           ) : (
             <JobsTable jobs={jobs} />
           )}
