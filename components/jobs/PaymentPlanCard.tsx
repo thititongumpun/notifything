@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import type { PaymentPlan } from "@/lib/types";
-import { CheckCircle2, Circle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGE_SIZE = 12;
 
@@ -24,7 +24,7 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
   const [page, setPage] = useState(1);
 
   const paidCount = plan.payments.filter((p) => p.isPaid).length;
-  const pct = Math.round((paidCount / plan.totalMonths) * 100);
+  const pct = Math.min(100, Math.round((paidCount / plan.totalMonths) * 100));
   const paidAmount = paidCount * Number(plan.monthlyAmount);
   const remaining = Number(plan.totalAmount) - paidAmount;
 
@@ -47,19 +47,19 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
       {/* Summary stats */}
       <div className="px-[var(--space-xs)] py-[var(--space-2xs)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-[var(--space-2xs)] border-b border-[var(--color-rule)]">
         <div className="min-w-0">
-          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Total</p>
+          <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">Total</p>
           <p className="font-mono text-[length:var(--text-sm)] font-semibold text-[var(--color-ink)] mt-[var(--space-3xs)]">฿{fmt(plan.totalAmount)}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Monthly</p>
+          <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">Monthly</p>
           <p className="font-mono text-[length:var(--text-sm)] font-semibold text-[var(--color-ink)] mt-[var(--space-3xs)]">฿{fmt(plan.monthlyAmount)}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Paid</p>
+          <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">Paid</p>
           <p className="font-mono text-[length:var(--text-sm)] font-semibold text-[var(--color-accent)] mt-[var(--space-3xs)]">฿{paidAmount.toLocaleString("th-TH")}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Remaining</p>
+          <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">Remaining</p>
           <p className="font-mono text-[length:var(--text-sm)] font-semibold text-[var(--color-ink)] mt-[var(--space-3xs)]">฿{remaining.toLocaleString("th-TH")}</p>
         </div>
       </div>
@@ -80,15 +80,15 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
 
       {/* Payments — desktop table */}
       <div className="hidden md:block">
-        <table className="w-full text-[length:var(--text-sm)]">
+        <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
-              <th className="text-left px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">#</th>
-              <th className="text-left px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Due Date</th>
-              <th className="text-right px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Amount</th>
-              <th className="text-left px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Status</th>
-              <th className="text-left px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Paid Date</th>
-              <th className="text-left px-[var(--space-xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Notes</th>
+              <th className="text-left px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">#</th>
+              <th className="text-left px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Due Date</th>
+              <th className="text-right px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Amount</th>
+              <th className="text-left px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Status</th>
+              <th className="text-left px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Paid Date</th>
+              <th className="text-left px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)]">Notes</th>
             </tr>
           </thead>
           <tbody>
@@ -97,26 +97,26 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
                 key={payment.id}
                 className="border-b border-[var(--color-rule)] last:border-b-0 transition-[background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)]"
               >
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono text-[var(--color-ink-2)] tabular-nums">{payment.paymentMonth}</td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right font-mono text-[var(--color-ink)]">
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)]">{payment.paymentMonth}</td>
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</td>
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right font-mono tabular-nums text-[var(--color-ink)]">
                   ฿{fmt(payment.amount)}
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)]">
                   {payment.isPaid ? (
-                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] text-[length:var(--text-xs)] font-medium text-[var(--color-accent)] leading-none px-2 py-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-accent)]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" aria-hidden />
                       Paid
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] text-[length:var(--text-xs)] font-medium text-[var(--color-ink-2)] leading-none px-2 py-1">
-                      <Circle className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-ink-2)]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-rule)]" aria-hidden />
                       Unpaid
                     </span>
                   )}
                 </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{payment.notes || "—"}</td>
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[length:var(--text-sm)] text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</td>
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] text-[var(--color-ink-2)]">{payment.notes || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -136,29 +136,29 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
               </p>
               {payment.isPaid ? (
                 <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] text-[length:var(--text-xs)] font-medium text-[var(--color-accent)] leading-none px-2 py-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" aria-hidden />
                   Paid
                 </span>
               ) : (
                 <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] text-[length:var(--text-xs)] font-medium text-[var(--color-ink-2)] leading-none px-2 py-1">
-                  <Circle className="w-3.5 h-3.5" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-rule)]" aria-hidden />
                   Unpaid
                 </span>
               )}
             </div>
-            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-xs)]">
+            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)]">
               <div className="flex gap-[var(--space-3xs)] min-w-0">
-                <dt className="uppercase tracking-wide text-[var(--color-ink-2)] shrink-0">Due</dt>
-                <dd className="text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</dd>
+                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Due</dt>
+                <dd className="font-mono tabular-nums text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</dd>
               </div>
               <div className="flex gap-[var(--space-3xs)] min-w-0">
-                <dt className="uppercase tracking-wide text-[var(--color-ink-2)] shrink-0">Paid</dt>
-                <dd className="text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</dd>
+                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Paid</dt>
+                <dd className="font-mono tabular-nums text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</dd>
               </div>
               {payment.notes && (
                 <div className="flex gap-[var(--space-3xs)] min-w-0">
-                  <dt className="uppercase tracking-wide text-[var(--color-ink-2)] shrink-0">Notes</dt>
-                  <dd className="text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]">{payment.notes}</dd>
+                  <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Notes</dt>
+                  <dd className="min-w-0 text-[var(--color-ink-2)] [overflow-wrap:anywhere]">{payment.notes}</dd>
                 </div>
               )}
             </dl>

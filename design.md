@@ -19,7 +19,7 @@ modern-minimal — utilitarian dark app for tracking scheduled jobs and payments
 --color-paper-2:    oklch(21% 0.014 260);  /* raised surfaces: cards, rail */
 --color-paper-3:    oklch(25% 0.015 260);  /* hover surfaces, inputs */
 --color-ink:        oklch(96% 0.005 260);  /* primary text */
---color-ink-2:      oklch(70% 0.012 260);  /* secondary text */
+--color-ink-2:      oklch(78% 0.012 260);  /* secondary text */
 --color-rule:       oklch(30% 0.015 260);  /* hairlines, borders */
 --color-accent:     oklch(68% 0.17 275);   /* indigo — actions, active nav */
 --color-accent-ink: oklch(15% 0.03 275);   /* text on accent fill */
@@ -34,6 +34,22 @@ rings, one data-highlight per stat card. Never accent body text.
 - Mono: Geist Mono, weight 400 — cron expressions, IDs, amounts.
 - Display tracking: -0.02em. Page title = 1.25rem (app chrome, not landing hero).
 - Scale: --text-xs 0.75 / --text-sm 0.875 / --text-md 1.125 / --text-lg 1.375.
+- Line-height: body 1.6; table cells 1.5; headings 1.2.
+- Table body text: minimum --text-sm (0.875rem). Never --text-xs for table
+  cell content — xs is reserved for labels and eyebrows only.
+
+## Data display (tables)
+- Row padding: --space-2xs vertical / --space-xs horizontal minimum.
+- Header: --text-xs, uppercase, `tracking-wide`, ink-2, bottom rule.
+- Row hover: background --color-paper-3, transition --dur-short.
+- Hairline dividers: 1px --color-rule between rows; `last:border-b-0`.
+- Amounts, dates, and IDs: --font-mono with `font-variant-numeric: tabular-nums`.
+- Status: dot-chip — accent dot for enabled/paid, rule dot for off.
+- Mobile (<768px): collapse to stacked definition-list cards; never
+  horizontal scroll.
+- Never combine `font-display` and `font-mono` on the same element.
+
+Amended 2026-08-26.
 
 ## Spacing
 4-point named scale in `tokens.css` (`--space-3xs` … `--space-3xl`).

@@ -35,7 +35,7 @@ export default async function DashboardPage() {
             <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
               Total Jobs
             </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] font-mono">
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">
               {jobs.length}
             </p>
           </div>
@@ -45,7 +45,7 @@ export default async function DashboardPage() {
             <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
               Active
             </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-accent)] font-mono">
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-accent)] tabular-nums">
               {activeCount}
             </p>
           </div>
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
             <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] uppercase tracking-wide">
               Disabled
             </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] font-mono">
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-xl)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">
               {jobs.length - activeCount}
             </p>
           </div>

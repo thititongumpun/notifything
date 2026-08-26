@@ -33,7 +33,8 @@ function today() {
 const inputClass =
   "rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-paper-3)] text-[var(--color-ink)] transition-colors duration-[180ms] [transition-timing-function:var(--ease-out)]";
 
-const labelClass = "text-sm text-[var(--color-ink-2)]";
+const labelClass =
+  "text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]";
 
 function RequiredMark() {
   return (
@@ -116,7 +117,7 @@ export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalPro
                   Add Payment
                 </Modal.Heading>
                 <p
-                  className="mt-[var(--space-3xs)] max-w-xs truncate text-xs text-[var(--color-ink-2)]"
+                  className="mt-[var(--space-3xs)] max-w-xs truncate text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]"
                   style={{ overflowWrap: "anywhere" }}
                 >
                   {plan.description}
@@ -210,7 +211,7 @@ export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalPro
                     <Switch.Thumb />
                   </Switch.Control>
                   <Switch.Content>
-                    <Label className="text-sm text-[var(--color-ink)]">Paid</Label>
+                    <Label className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)]">Paid</Label>
                   </Switch.Content>
                 </Switch>
 
@@ -278,7 +279,7 @@ export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalPro
 
                 {error ? (
                   <p
-                    className="rounded-[var(--radius-input)] border px-[var(--space-2xs)] py-[var(--space-2xs)] text-xs"
+                    className="rounded-[var(--radius-input)] border px-[var(--space-2xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)]"
                     style={{
                       borderColor: "color-mix(in oklab, var(--color-danger) 30%, transparent)",
                       backgroundColor: "color-mix(in oklab, var(--color-danger) 10%, transparent)",

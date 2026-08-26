@@ -45,7 +45,7 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
     <>
       {/* Desktop table (>=768px) */}
       <div className="hidden md:block">
-        <table className="w-full text-[length:var(--text-sm)]">
+        <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
               {["Name", "Cron", "Status", "Last Run", "Created"].map((h) => (
@@ -73,17 +73,17 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
                   </Link>
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)]">
-                  <code className="font-mono text-[length:var(--text-xs)] text-[var(--color-ink-2)]">
+                  <code className="font-mono tabular-nums text-[length:var(--text-sm)] text-[var(--color-ink-2)]">
                     {job.cron.trim()}
                   </code>
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)]">
                   <StatusChip enabled={job.enabled} />
                 </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[var(--color-ink-2)]">
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)]">
                   {formatDate(job.lastRunAt)}
                 </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[var(--color-ink-2)]">
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)]">
                   {formatDate(job.createdAt)}
                 </td>
               </tr>
@@ -101,17 +101,17 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
             className="block min-h-[44px] px-[var(--space-xs)] py-[var(--space-2xs)] border-b border-[var(--color-rule)] last:border-b-0 transition-[background-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] active:translate-y-[1px]"
           >
             <div className="flex items-start justify-between gap-[var(--space-2xs)] min-w-0">
-              <p className="font-medium text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
+              <p className="font-medium leading-[var(--leading-table)] text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
                 {job.name}
               </p>
               <StatusChip enabled={job.enabled} />
             </div>
-            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)]">
+            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)]">
               <div className="flex gap-[var(--space-3xs)] min-w-0">
                 <dt className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)] shrink-0 pt-px">
                   Cron
                 </dt>
-                <dd className="font-mono text-[length:var(--text-xs)] text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]">
+                <dd className="font-mono tabular-nums text-[length:var(--text-sm)] leading-[var(--leading-table)] text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]">
                   {job.cron.trim()}
                 </dd>
               </div>
@@ -119,7 +119,7 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
                 <dt className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)] shrink-0 pt-px">
                   Last run
                 </dt>
-                <dd className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">
+                <dd className="font-mono tabular-nums text-[length:var(--text-sm)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
                   {formatDate(job.lastRunAt)}
                 </dd>
               </div>
@@ -127,7 +127,7 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
                 <dt className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)] shrink-0 pt-px">
                   Created
                 </dt>
-                <dd className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">
+                <dd className="font-mono tabular-nums text-[length:var(--text-sm)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
                   {formatDate(job.createdAt)}
                 </dd>
               </div>
