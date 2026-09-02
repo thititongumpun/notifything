@@ -31,6 +31,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#16181d",
+  // ponytail: cover + top/bottom insets only. Ceiling: landscape notch (left/right
+  // insets) is unhandled; upgrade = px-[env(safe-area-inset-left)] on TopBar + MobileNav.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

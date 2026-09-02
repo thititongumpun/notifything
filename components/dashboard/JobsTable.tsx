@@ -38,8 +38,8 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
 
   return (
     <>
-      {/* Desktop table (>=768px) */}
-      <div className="hidden md:block">
+      {/* Desktop table (1024px) */}
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
@@ -59,10 +59,10 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
                 key={job.id}
                 className="border-b border-[var(--color-rule)] last:border-b-0 transition-[background-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)]"
               >
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-medium min-w-0 max-w-[16rem] truncate">
+                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-medium">
                   <Link
                     href={`/jobs/${job.id}`}
-                    className="text-[var(--color-ink)] transition-colors duration-[var(--dur-short)] hover:text-[var(--color-accent)]"
+                    className="block max-w-[16rem] truncate text-[var(--color-ink)] transition-colors duration-[var(--dur-short)] hover:text-[var(--color-accent)]"
                   >
                     {job.name}
                   </Link>
@@ -87,8 +87,8 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
         </table>
       </div>
 
-      {/* Mobile stacked cards (<768px) */}
-      <div className="md:hidden flex flex-col">
+      {/* Mobile stacked cards (1024px) */}
+      <div className="lg:hidden flex flex-col">
         {jobs.map((job) => (
           <Link
             key={job.id}

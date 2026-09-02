@@ -15,7 +15,7 @@ export function TopBar({ title }: { title: string }) {
       : user.fullName?.[0] ?? "U";
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] h-14 px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] min-h-14 pt-[env(safe-area-inset-top)] px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
       {/* Mobile: wordmark (sidebar hidden below md); Desktop: page title */}
       <div className="flex items-center gap-[var(--space-2xs)] min-w-0 md:min-w-0">
         <span className="flex md:hidden items-center gap-[var(--space-2xs)] shrink-0">

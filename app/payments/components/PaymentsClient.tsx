@@ -62,7 +62,7 @@ export function PaymentsClient({
             >
               {entry.name}
             </h2>
-            <div className="grid grid-cols-1 gap-[var(--space-xs)] md:[grid-template-columns:repeat(2,minmax(0,1fr))]">
+            <div className="grid grid-cols-1 gap-[var(--space-xs)] xl:[grid-template-columns:repeat(2,minmax(0,1fr))]">
               {entry.detail?.paymentPlans.map((plan) => (
                 <PlanCard
                   key={plan.id}

@@ -116,7 +116,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       </div>
 
       {/* Payments — desktop table */}
-      <div className="hidden overflow-hidden @min-[30rem]:block">
+      <div className="hidden overflow-x-auto @min-[44rem]:block">
         <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
@@ -159,7 +159,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       </div>
 
       {/* Payments — mobile stacked cards */}
-      <div className="flex flex-col @min-[30rem]:hidden">
+      <div className="flex flex-col @min-[44rem]:hidden">
         {paginated.map((payment) => (
           <div
             key={payment.id}

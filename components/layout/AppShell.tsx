@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar activePath={pathname} />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar title={getTitle(pathname)} />
-        <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 md:p-6 pb-24 md:pb-6">
+        <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6">
           {children}
         </main>
         <MobileNav activePath={pathname} />

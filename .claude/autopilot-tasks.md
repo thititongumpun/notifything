@@ -1,17 +1,27 @@
-# Autopilot: notifything whole-app redesign (hallmark, fonts + charts + consolidation)
-**Executing:** done — all tasks complete, review clean
+# Autopilot: fix all app responsive (full audit, all viewports, all pages)
+**Executing:** done — 6 tasks, 2 fix rounds, 5 findings all resolved. Not committed.
 
-- [x] T1. Amend design.md: Inter+Noto Thai+JetBrains Mono, Data visualization + Card action rows specs  (complex)
-- [x] T2. Font swap implementation: layout.tsx, tokens.css, globals.css @theme fix
-- [x] T3. Shared helpers: lib/format.ts + lib/api.ts
-- [x] T4. AddPaymentModal: prefill prop + 320px grid fixes
-- [x] T5. Create components/payments/PlanCard.tsx (consolidated, card action footer)  (complex, retried once after agent stall)
-- [x] T6. Dashboard redesign + charts  (complex) — agent stalled pre-report; pass conditions verified by orchestrator
-- [x] T7. Payments page: dynamic discovery + per-job error resilience
-- [x] T8. Jobs pages redesign; delete components/jobs/PaymentPlanCard.tsx
-- [x] T9. Shell + sign-in polish (pageTitles, tokens, neutral-950 out)
-- [x] T10. mark-paid: SKIPPED — backend DNS NXDOMAIN from this machine, PATCH unverifiable, no dead button shipped
-- [x] T11. .hallmark/log.json + slop close-out
-- [x] T12. Review — round 1: 4 findings (font scope no-op HIGH, cron corruption MED, a11y focus, chart gap), all fixed; round 2: clean, verified against built CSS + prerendered HTML
+Root cause: commit 883e8f9 used `overflow-hidden` (clips) not `overflow-x-auto` (scrolls),
+and fired container/breakpoints ~120px below the tables' min-content width.
+Plus `viewportFit` missing from layout viewport export => all `env(safe-area-inset-*)` = 0.
 
-Outcome: build/lint/tsc all exit 0. Ready to commit.
+- [x] 1. viewportFit:"cover" — enable safe-area insets   [haiku]  (simple)
+- [x] 2. TopBar/AppShell consume top+bottom insets       [sonnet]
+- [x] 3. JobsTable: md->lg + real scroll container       [haiku]  (simple)
+- [x] 4. PlanCard: 30rem->44rem + overflow-x-auto        [haiku]  (simple)
+- [x] 5. Payments grid: two-up at xl, not md             [haiku]  (simple)
+- [x] 6. Overflow proof, 5 routes x 6 widths             [opus]   (complex)
+- [x] 7. Review                                          [opus]
+
+## Review round 1 — 3 findings (all pre-existing, none in tasks 1-5)
+- [x] F1. sr-only on <table> doesn't collapse -> 798px page overflow (PlanProgress.tsx:95)
+- [x] F2. same + MonthlyBars tick labels overflow at 240 bars (MonthlyBars.tsx:102,89)
+- [x] F3. Dashboard "Paid to date" wraps mid-number at 320px (app/dashboard/page.tsx)
+
+## Review round 2 — 2 findings, both fixed
+- [x] F4. MonthlyBars tick labels clipped mid-glyph at every width (own round-1 overflow-hidden was wrong model)
+- [x] F5. "Paid to date" over-stepped to text-xs (12px) across all phones; -> text-sm
+
+Final: overflow proof 24/24 route x width, negative control passed, build exit 0.
+Unverified: /sign-in (client-only Clerk render), safe-area insets (headless reports 0),
+AddPaymentModal + pagination past page 1 (script-stripped harness), real API data (mock used).

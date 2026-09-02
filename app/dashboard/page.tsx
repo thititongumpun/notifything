@@ -79,7 +79,13 @@ export default async function DashboardPage() {
             <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
               Paid to date
             </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums [overflow-wrap:anywhere]">
+            {/* ponytail: whitespace-nowrap keeps the number intact (it must never
+                split mid-digit); text-sm→sm:text-lg keeps it inside the 114px
+                mobile tile. Ceiling: comfortably fits up to ~8-digit baht totals
+                (e.g. ฿99,999,999.99) at 320px. If paidToDate regularly exceeds
+                ~99,999,999, step the base size down further or widen the tile
+                (e.g. col-span-2) instead of re-adding overflow-wrap here. */}
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-sm)] sm:text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums whitespace-nowrap">
               ฿{fmt(paidToDate)}
             </p>
           </div>

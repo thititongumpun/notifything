@@ -92,27 +92,33 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
         )}
       </div>
 
-      <table className="sr-only">
-        <caption>Payment progress for {plan.description}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Month</th>
-            <th scope="col">Due date</th>
-            <th scope="col">Amount (THB)</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {months.map((p) => (
-            <tr key={p.id}>
-              <th scope="row">{p.paymentMonth}</th>
-              <td>{p.dueDate}</td>
-              <td>{fmt(p.amount)}</td>
-              <td>{p.isPaid ? "Paid" : "Unpaid"}</td>
+      {/* ponytail: sr-only goes on this div, not the table — a <table>'s used
+          width is max(specified, min-content) per CSS table sizing, so
+          width:1px never shrinks it (measures ~770px, blowing out scrollWidth
+          at narrow viewports). A block-level div collapses to 1px fine. */}
+      <div className="sr-only">
+        <table>
+          <caption>Payment progress for {plan.description}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Month</th>
+              <th scope="col">Due date</th>
+              <th scope="col">Amount (THB)</th>
+              <th scope="col">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {months.map((p) => (
+              <tr key={p.id}>
+                <th scope="row">{p.paymentMonth}</th>
+                <td>{p.dueDate}</td>
+                <td>{fmt(p.amount)}</td>
+                <td>{p.isPaid ? "Paid" : "Unpaid"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }
