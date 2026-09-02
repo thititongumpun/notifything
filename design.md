@@ -58,6 +58,8 @@ Amended 2026-09-02.
 
 Amended 2026-08-26.
 
+Amended 2026-09-02 (responsive tables in cards): tables and stat grids inside cards respond to the CARD's own width via Tailwind v4 container queries (`@container` root + `@min-[28rem]`/`@min-[30rem]` variants), not viewport breakpoints — PlanCard renders 2-up from md (234px cards at 768px) where a viewport-gated table would clip. Stacked cards render whenever the card is narrower than the table's min-content; amounts carry `overflow-wrap: anywhere` as the no-clip guard.
+
 ## Data visualization (charts)
 - Colour semantics: accent = paid, --color-track = due/unpaid. No other hues
   in charts. --color-rule is a hairline stroke only — it must never FILL a
@@ -79,6 +81,8 @@ Amended 2026-08-26.
 
 Amended 2026-09-02 (progress legibility: visible --color-track for unpaid,
 progress charts must state months/amount remaining + finish).
+
+Amended 2026-09-02 (tick thinning): bar-chart tick/value labels thin to at most 6 labelled columns by count (`tickStep = ceil(n/6)`); label-row gaps must match bar-row gaps (`gap-px` below sm) so ticks point at their bars.
 
 ## Card action rows
 - Anchored by a 1px border-top rule in --color-rule.

@@ -46,7 +46,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
   const nextUnpaid = sorted.find((p) => !p.isPaid) ?? null;
 
   return (
-    <div className="flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:bg-[var(--color-paper-3)] active:translate-y-px">
+    <div className="@container flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:bg-[var(--color-paper-3)] active:translate-y-px">
       {/* Plan header */}
       <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
         <p
@@ -61,28 +61,28 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       </div>
 
       {/* Summary stats — amounts in mono */}
-      <div className="grid grid-cols-2 gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:grid-cols-4 sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
+      <div className="grid grid-cols-2 gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] @min-[28rem]:grid-cols-4 sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
         <div className="min-w-0">
           <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Total</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
+          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
             ฿{fmt(plan.totalAmount)}
           </p>
         </div>
         <div className="min-w-0">
           <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Monthly</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
+          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
             ฿{fmt(plan.monthlyAmount)}
           </p>
         </div>
         <div className="min-w-0">
           <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Paid</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
+          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
             ฿{fmt(paidAmount)}
           </p>
         </div>
         <div className="min-w-0">
           <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Remaining</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
+          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
             ฿{fmt(remaining)}
           </p>
         </div>
@@ -116,7 +116,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       </div>
 
       {/* Payments — desktop table */}
-      <div className="hidden overflow-hidden md:block">
+      <div className="hidden overflow-hidden @min-[30rem]:block">
         <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
@@ -159,14 +159,14 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       </div>
 
       {/* Payments — mobile stacked cards */}
-      <div className="flex flex-col md:hidden">
+      <div className="flex flex-col @min-[30rem]:hidden">
         {paginated.map((payment) => (
           <div
             key={payment.id}
             className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] last:border-b-0 sm:px-[var(--space-sm)]"
           >
             <div className="flex min-w-0 items-start justify-between gap-[var(--space-2xs)]">
-              <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)]">
+              <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">
                 #{payment.paymentMonth} · ฿{fmt(payment.amount)}
               </p>
               <StatusPill isPaid={payment.isPaid} />

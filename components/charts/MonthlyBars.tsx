@@ -11,6 +11,7 @@ export function MonthlyBars({ payments }: { payments: PaymentRecord[] }) {
   if (months.length === 0) return null;
 
   const max = Math.max(...months.map((p) => Number(p.amount)), 1);
+  const tickStep = Math.max(1, Math.ceil(months.length / 6));
   const paidTotal = months
     .filter((p) => p.isPaid)
     .reduce((sum, p) => sum + Number(p.amount), 0);
@@ -73,21 +74,30 @@ export function MonthlyBars({ payments }: { payments: PaymentRecord[] }) {
         })}
       </div>
       {/* Tick + value labels — values thin out below sm */}
-      <div className="flex gap-[var(--space-3xs)] border-b border-[var(--color-rule)]">
-        {months.map((p) => (
-          <div
-            key={p.id}
-            className="min-w-0 flex-1 py-[var(--space-3xs)] text-center"
-          >
-            <p className="font-mono tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
-              <span className="sm:hidden">{p.paymentMonth}</span>
-              <span className="hidden sm:inline">M{p.paymentMonth}</span>
-            </p>
-            <p className="mt-[var(--space-3xs)] hidden font-mono tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink)] sm:block">
-              ฿{fmt(p.amount)}
-            </p>
-          </div>
-        ))}
+      <div className="flex gap-px sm:gap-[var(--space-3xs)] border-b border-[var(--color-rule)]">
+        {months.map((p, i) => {
+          const showTick = i % tickStep === 0 || i === months.length - 1;
+          return (
+            <div
+              key={p.id}
+              className="min-w-0 flex-1 py-[var(--space-3xs)] text-center"
+            >
+              <p className="font-mono tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
+                {showTick ? (
+                  <>
+                    <span className="sm:hidden">{p.paymentMonth}</span>
+                    <span className="hidden sm:inline">M{p.paymentMonth}</span>
+                  </>
+                ) : (
+                  ""
+                )}
+              </p>
+              <p className="mt-[var(--space-3xs)] hidden font-mono tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink)] sm:block">
+                {showTick ? `฿${fmt(p.amount)}` : ""}
+              </p>
+            </div>
+          );
+        })}
       </div>
       <table className="sr-only">
         <caption>Monthly amounts by installment month</caption>

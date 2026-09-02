@@ -50,7 +50,7 @@ export default async function DashboardPage() {
     <AppShell>
       <div className="flex flex-col gap-[var(--space-md)]">
         {/* Stat strip */}
-        <div className="grid grid-cols-2 gap-[var(--space-2xs)] sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-[var(--space-2xs)] lg:grid-cols-4">
           <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
             <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
               Total jobs
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
             <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
               Paid to date
             </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">
+            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums [overflow-wrap:anywhere]">
               ฿{fmt(paidToDate)}
             </p>
           </div>
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
               >
                 <Link
                   href={`/jobs/${job.id}`}
-                  className="block px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] font-medium leading-[var(--leading-table)] text-[var(--color-ink)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-accent)]"
+                  className="block px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] font-medium leading-[var(--leading-table)] text-[var(--color-ink)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-accent)] [overflow-wrap:anywhere]"
                 >
                   {job.name}
                 </Link>
