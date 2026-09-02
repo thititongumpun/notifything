@@ -31,7 +31,7 @@ export function MonthlyBars({ payments }: { payments: PaymentRecord[] }) {
           </span>
           <span className="inline-flex items-center gap-1">
             <span
-              className="h-2 w-2 rounded-[2px] bg-[var(--color-rule)]"
+              className="h-2 w-2 rounded-[2px] bg-[var(--color-track)]"
               aria-hidden
             />
             Due
@@ -56,7 +56,7 @@ export function MonthlyBars({ payments }: { payments: PaymentRecord[] }) {
             >
               {due - paid > 0 && (
                 <div
-                  className="w-full rounded-t-[2px] bg-[var(--color-rule)]"
+                  className="w-full rounded-t-[2px] bg-[var(--color-track)]"
                   style={{ height: `${((due - paid) / max) * 100}%` }}
                 />
               )}

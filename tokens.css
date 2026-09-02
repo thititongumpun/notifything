@@ -6,6 +6,7 @@
   --color-ink:        oklch(96% 0.005 260);
   --color-ink-2:      oklch(78% 0.012 260);
   --color-rule:       oklch(30% 0.015 260);
+  --color-track:      oklch(34% 0.015 260);
   --color-accent:     oklch(68% 0.17 275);
   --color-accent-ink: oklch(15% 0.03 275);
   --color-focus:      oklch(75% 0.15 275);

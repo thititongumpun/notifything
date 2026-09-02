@@ -59,7 +59,10 @@ Amended 2026-09-02.
 Amended 2026-08-26.
 
 ## Data visualization (charts)
-- Colour semantics: accent = paid, rule = due. No other hues in charts.
+- Colour semantics: accent = paid, --color-track = due/unpaid. No other hues
+  in charts. --color-rule is a hairline stroke only — it must never FILL a
+  chart area (it is near-invisible against card surfaces; that is the bug this
+  amendment fixes).
 - No gradients, no 3D, no glow — flat fills and hairline strokes only.
 - Tick labels: --font-mono with `font-variant-numeric: tabular-nums`.
 - Gridlines: 1px --color-rule hairlines, horizontal only.
@@ -70,8 +73,12 @@ Amended 2026-08-26.
   never horizontal scroll.
 - Implementation: div-bar rows (flex + token colours) preferred over chart
   libraries.
+- Progress displays must answer "how far to 100%": percentage, paid-of-total
+  months, remaining amount, and projected finish (last unpaid due date) —
+  a bar alone doesn't say how long is left.
 
-Amended 2026-09-02.
+Amended 2026-09-02 (progress legibility: visible --color-track for unpaid,
+progress charts must state months/amount remaining + finish).
 
 ## Card action rows
 - Anchored by a 1px border-top rule in --color-rule.

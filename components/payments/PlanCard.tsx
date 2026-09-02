@@ -97,7 +97,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
           <span className="font-mono tabular-nums">{pct}%</span>
         </div>
         <div
-          className="flex h-1 w-full gap-px"
+          className="flex h-[8px] w-full gap-px"
           role="progressbar"
           aria-label={`${plan.description} payment progress`}
           aria-valuemin={0}
@@ -108,7 +108,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
             <div
               key={payment.id}
               className={`h-full min-w-0 flex-1 rounded-full ${
-                payment.isPaid ? "bg-[var(--color-accent)]" : "bg-[var(--color-rule)]"
+                payment.isPaid ? "bg-[var(--color-accent)]" : "bg-[var(--color-track)]"
               }`}
             />
           ))}
