@@ -11,11 +11,13 @@ const pageTitles: Record<string, string> = {
   "/notifications/new": "New Notification",
   "/payments": "Payments",
   "/payments/new": "Add Payment",
+  "/jobs/new": "Add job",
 };
 
 function getTitle(path: string): string {
   if (pageTitles[path]) return pageTitles[path];
   if (path.startsWith("/notifications/")) return "Edit Notification";
+  if (path.startsWith("/jobs/")) return "Job detail";
   return "Notifything";
 }
 

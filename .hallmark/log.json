@@ -1,4 +1,5 @@
 [
+  { "date": "2026-09-02", "macrostructure": "Workbench", "theme": "custom", "theme_axes": "dark / grotesk-sans (Inter + Noto Sans Thai + JetBrains Mono) / cool-indigo", "enrichment": "none", "brief": "Notifything · whole-app redesign: readable font pairing swap (Thai coverage), dashboard charts, consolidated PlanCard payments UX, mobile responsive pass", "scope": "app" },
   { "date": "2026-08-26", "macrostructure": "Workbench", "theme": "custom", "theme_axes": "dark / grotesk-sans (Geist) / cool-indigo", "enrichment": "none", "brief": "Notifything · typography readability + data-display/table redesign (design.md amended)", "scope": "app" },
   { "date": "2026-08-19", "macrostructure": "Workbench", "theme": "custom", "theme_axes": "dark / grotesk-sans (Geist) / cool-indigo", "enrichment": "none", "brief": "Notifything · PWA app redesign (dashboard, jobs, payments, shell)", "scope": "app" }
 ]

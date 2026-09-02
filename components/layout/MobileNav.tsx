@@ -22,7 +22,7 @@ export function MobileNav({ activePath }: { activePath: string }) {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center justify-center gap-0.5 min-h-[3rem] px-2 py-1 text-xs font-medium whitespace-nowrap active:translate-y-px ${
+            className={`flex flex-col items-center justify-center gap-0.5 min-h-[3rem] px-[var(--space-2xs)] py-[var(--space-3xs)] text-[length:var(--text-xs)] font-medium whitespace-nowrap active:translate-y-px ${
               active
                 ? "text-[var(--color-accent)]"
                 : "text-[var(--color-ink-2)]"

@@ -3,296 +3,102 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@heroui/react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { JobDetail, PaymentPlan } from "@/lib/types";
+import { PlanCard } from "@/components/payments/PlanCard";
 import { AddPaymentModal } from "./AddPaymentModal";
 
-const PAGE_SIZE = 12;
-
-function fmt(amount: string | number) {
-  return Number(amount).toLocaleString("th-TH");
+/** One job from discovery: either its detail (may have 0 plans) or the fetch error. */
+export interface JobEntry {
+  id: string;
+  name: string;
+  detail: JobDetail | null;
+  error: string | null;
 }
 
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+type PaymentRecord = PaymentPlan["payments"][number];
 
-function PlanCard({ plan }: { plan: PaymentPlan }) {
-  const [page, setPage] = useState(1);
+const errorCardClass =
+  "rounded-[var(--radius-input)] border px-[var(--space-2xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)]";
 
-  const paidCount = plan.payments.filter((p) => p.isPaid).length;
-  const pct = Math.min(100, Math.round((paidCount / plan.totalMonths) * 100));
-  const paidAmount = paidCount * Number(plan.monthlyAmount);
-  const remaining = Number(plan.totalAmount) - paidAmount;
+const errorCardStyle = {
+  borderColor: "color-mix(in oklab, var(--color-danger) 30%, transparent)",
+  backgroundColor: "color-mix(in oklab, var(--color-danger) 10%, transparent)",
+  color: "var(--color-danger)",
+} as const;
 
-  const sorted = [...plan.payments].sort((a, b) => a.paymentMonth - b.paymentMonth);
-  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const nextUnpaid = sorted.find((p) => !p.isPaid) ?? null;
-
-  return (
-    <div className="flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[180ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-0.5 hover:bg-[var(--color-paper-3)] active:translate-y-px">
-      {/* Plan header */}
-      <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
-        <p
-          className="min-w-0 text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-ink)]"
-          style={{ overflowWrap: "anywhere" }}
-        >
-          {plan.description}
-        </p>
-        <p className="mt-[var(--space-3xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          <span className="font-mono tabular-nums">{fmtDate(plan.startDate)} → {fmtDate(plan.endDate)}</span>
-        </p>
-      </div>
-
-      {/* Next payment — the single accent element on the card */}
-      <div className="flex items-baseline justify-between gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-        <p className="text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">Next payment</p>
-        <p
-          className="text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-accent)]"
-          style={{ overflowWrap: "anywhere" }}
-        >
-          {nextUnpaid ? fmtDate(nextUnpaid.dueDate) : "All paid"}
-        </p>
-      </div>
-
-      {/* Summary stats — amounts in mono */}
-      <div className="grid grid-cols-2 gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:grid-cols-4 sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Total</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
-            ฿{fmt(plan.totalAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Monthly</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
-            ฿{fmt(plan.monthlyAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Paid</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
-            ฿{fmt(paidAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Remaining</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono">
-            ฿{fmt(remaining)}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress — 4px accent-on-rule bar */}
-      <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-        <div className="mb-[var(--space-3xs)] flex items-center justify-between text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          <span>
-            {paidCount} of {plan.totalMonths} months paid
-          </span>
-          <span className="font-mono">{pct}%</span>
-        </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--color-rule)]">
-          <div
-            className="h-full rounded-full bg-[var(--color-accent)]"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Payments — desktop table */}
-      <div className="hidden overflow-hidden md:block">
-        <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
-          <thead>
-            <tr className="border-b border-[var(--color-rule)]">
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">#</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Due Date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Amount</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Status</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Paid Date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((payment) => (
-              <tr
-                key={payment.id}
-                className="border-b border-[var(--color-rule)] last:border-b-0 transition-colors duration-[180ms] [transition-timing-function:var(--ease-out)] hover:bg-[var(--color-paper-3)]"
-              >
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-[var(--color-ink-2)] tabular-nums sm:px-[var(--space-sm)] font-mono">
-                  {payment.paymentMonth}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink)] sm:px-[var(--space-sm)]">
-                  {fmtDate(payment.dueDate)}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right font-mono tabular-nums text-[var(--color-ink)] sm:px-[var(--space-sm)]">
-                  ฿{fmt(payment.amount)}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-                  {payment.isPaid ? (
-                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-accent)]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" aria-hidden />
-                      Paid
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-ink-2)]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-rule)]" aria-hidden />
-                      Unpaid
-                    </span>
-                  )}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[length:var(--text-sm)] leading-[var(--leading-table)] text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
-                  {fmtDate(payment.paidDate)}
-                </td>
-                <td className="max-w-[16rem] px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)] text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
-                  <span style={{ overflowWrap: "anywhere" }}>{payment.notes || "—"}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Payments — mobile stacked cards */}
-      <div className="flex flex-col md:hidden">
-        {paginated.map((payment) => (
-          <div
-            key={payment.id}
-            className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] last:border-b-0 sm:px-[var(--space-sm)]"
-          >
-            <div className="flex min-w-0 items-start justify-between gap-[var(--space-2xs)]">
-              <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)]">
-                #{payment.paymentMonth} · ฿{fmt(payment.amount)}
-              </p>
-              {payment.isPaid ? (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-accent)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" aria-hidden />
-                  Paid
-                </span>
-              ) : (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-ink-2)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-rule)]" aria-hidden />
-                  Unpaid
-                </span>
-              )}
-            </div>
-            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)]">
-              <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Due</dt>
-                <dd className="font-mono tabular-nums text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</dd>
-              </div>
-              <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Paid</dt>
-                <dd className="font-mono tabular-nums text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</dd>
-              </div>
-              {payment.notes && (
-                <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                  <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Notes</dt>
-                  <dd className="min-w-0 text-[var(--color-ink-2)]" style={{ overflowWrap: "anywhere" }}>{payment.notes}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-          <p className="text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} of{" "}
-            {sorted.length}
-          </p>
-          <div className="flex items-center gap-[var(--space-3xs)]">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              aria-label="Previous page"
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[180ms] [transition-timing-function:var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
-            >
-              <ChevronLeft className="h-4 w-4" aria-hidden />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border text-[length:var(--text-xs)] leading-[var(--leading-body)] font-medium transition-colors duration-[180ms] [transition-timing-function:var(--ease-out)] active:translate-y-px ${
-                  n === page
-                    ? "border-[var(--color-rule)] bg-[var(--color-accent)] text-[var(--color-accent-ink)]"
-                    : "border-[var(--color-rule)] text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              aria-label="Next page"
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[180ms] [transition-timing-function:var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
-            >
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export function PaymentsClient({ jobs }: { jobs: JobDetail[] }) {
+export function PaymentsClient({
+  entries,
+  listError,
+}: {
+  entries: JobEntry[];
+  listError: string | null;
+}) {
   const router = useRouter();
-  const [activePlan, setActivePlan] = useState<PaymentPlan | null>(null);
+  const [active, setActive] = useState<{ plan: PaymentPlan; prefill?: PaymentRecord } | null>(null);
 
   function handleSuccess() {
-    setActivePlan(null);
+    setActive(null);
     router.refresh();
   }
+
+  const withPlans = entries.filter((e) => (e.detail?.paymentPlans.length ?? 0) > 0);
+  const errored = entries.filter((e) => e.error);
+  const isEmpty = !listError && withPlans.length === 0 && errored.length === 0;
 
   return (
     <>
       <div className="flex flex-col gap-[var(--space-md)]">
-        {jobs.map((job) => (
-          <div key={job.id} className="flex min-w-0 flex-col gap-[var(--space-xs)]">
-            <div className="flex flex-wrap items-center justify-between gap-[var(--space-2xs)]">
-              <h2
-                className="min-w-0 text-[length:var(--text-lg)] leading-[var(--leading-tight)] font-semibold text-[var(--color-ink)]"
-                style={{ letterSpacing: "-0.02em", overflowWrap: "anywhere" }}
-              >
-                {job.name}
-              </h2>
-              {job.paymentPlans.map((plan) => (
-                <Button
-                  key={plan.id}
-                  size="sm"
-                  aria-label={`Add payment to ${plan.description}`}
-                  className="min-h-[44px] gap-1.5 rounded-[10px] bg-[var(--color-accent)] px-[var(--space-xs)] text-[var(--color-accent-ink)] font-medium transition-[transform,background-color] duration-[180ms] [transition-timing-function:var(--ease-out)] hover:bg-[var(--color-focus)] active:translate-y-px"
-                  onPress={() => setActivePlan(plan)}
-                >
-                  <Plus className="h-3.5 w-3.5" aria-hidden />
-                  Add payment
-                </Button>
-              ))}
-            </div>
+        {listError ? (
+          <p className={errorCardClass} style={errorCardStyle}>
+            Couldn&apos;t load jobs: {listError}
+          </p>
+        ) : null}
+
+        {withPlans.map((entry) => (
+          <div key={entry.id} className="flex min-w-0 flex-col gap-[var(--space-xs)]">
+            <h2
+              className="min-w-0 text-[length:var(--text-lg)] leading-[var(--leading-tight)] font-semibold text-[var(--color-ink)]"
+              style={{ letterSpacing: "-0.02em", overflowWrap: "anywhere" }}
+            >
+              {entry.name}
+            </h2>
             <div className="grid grid-cols-1 gap-[var(--space-xs)] md:[grid-template-columns:repeat(2,minmax(0,1fr))]">
-              {job.paymentPlans.map((plan) => (
-                <PlanCard key={plan.id} plan={plan} />
+              {entry.detail?.paymentPlans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  onAddPayment={() => setActive({ plan })}
+                  onRecordPayment={(record) => setActive({ plan, prefill: record })}
+                />
               ))}
             </div>
           </div>
         ))}
+
+        {errored.map((entry) => (
+          <p key={entry.id} className={errorCardClass} style={errorCardStyle}>
+            Couldn&apos;t load payment plans for {entry.name}
+            {entry.error ? ` — ${entry.error}` : ""}
+          </p>
+        ))}
+
+        {isEmpty ? (
+          <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-[var(--space-sm)] py-[var(--space-md)] text-center">
+            <p className="text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-ink)]">
+              No payment plans yet
+            </p>
+            <p className="mt-[var(--space-3xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+              Jobs are created from the jobs pages — add a payment plan there and it will show up here.
+            </p>
+          </div>
+        ) : null}
       </div>
 
-      {activePlan ? (
+      {active ? (
         <AddPaymentModal
-          plan={activePlan}
-          onClose={() => setActivePlan(null)}
+          plan={active.plan}
+          prefill={active.prefill}
+          onClose={() => setActive(null)}
           onSuccess={handleSuccess}
         />
       ) : null}

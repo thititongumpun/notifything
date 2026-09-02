@@ -14,12 +14,12 @@ export function Sidebar({ activePath }: { activePath: string }) {
     >
       <div className="flex items-center gap-2 px-5 py-5 min-w-0">
         <Bell className="w-5 h-5 shrink-0 text-[var(--color-accent)]" />
-        <span className="text-[var(--text-md)] font-semibold text-[var(--color-ink)] whitespace-nowrap">
+        <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] whitespace-nowrap">
           Notifything
         </span>
       </div>
       <nav
-        className="flex flex-col gap-1 p-3 flex-1 border-t border-[var(--color-rule)]"
+        className="flex flex-col gap-[var(--space-3xs)] p-[var(--space-xs)] flex-1 border-t border-[var(--color-rule)]"
         aria-label="Primary"
       >
         {navItems.map(({ href, label, icon: Icon }) => {
@@ -29,7 +29,7 @@ export function Sidebar({ activePath }: { activePath: string }) {
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`relative flex items-center gap-3 px-3 min-h-[2.75rem] my-0.5 rounded-[var(--radius-input)] text-sm font-medium whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
+              className={`relative flex items-center gap-[var(--space-xs)] px-[var(--space-xs)] min-h-[2.75rem] my-0.5 rounded-[var(--radius-input)] text-[length:var(--text-sm)] font-medium whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
                 active
                   ? "text-[var(--color-accent)]"
                   : "text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"

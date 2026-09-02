@@ -1,3 +1,4 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 "use client";
 
 import { useState } from "react";
@@ -15,7 +16,18 @@ const CRON_PRESETS = [
 ];
 
 const inputClass =
-  "w-full bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-[var(--radius-input)] px-3 min-h-[44px] py-2 text-[length:var(--text-sm)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-2)] focus:outline-none transition-colors duration-[var(--dur-short)]";
+  "w-full bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-[var(--radius-input)] px-3 min-h-[44px] py-2 text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)]";
+
+const labelClass =
+  "text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]";
+
+function RequiredMark() {
+  return (
+    <span className="text-[var(--color-danger)]" aria-hidden>
+      *
+    </span>
+  );
+}
 
 export function AddJobForm() {
   const router = useRouter();
@@ -48,30 +60,30 @@ export function AddJobForm() {
   }
 
   return (
-    <div className="flex flex-col gap-[var(--space-2xs)] w-full">
+    <div className="flex flex-col gap-[var(--space-xs)] w-full">
       <Link
         href="/dashboard"
-        className="inline-flex min-h-[44px] items-center gap-1.5 text-[length:var(--text-sm)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
+        className="inline-flex min-h-[44px] items-center gap-1.5 text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" aria-hidden />
         Back to Dashboard
       </Link>
 
       <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] overflow-hidden">
-        <div className="px-[var(--space-xs)] py-[var(--space-2xs)] border-b border-[var(--color-rule)]">
-          <h1 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)]">
-            Add Job
+        <div className="px-[var(--space-sm)] py-[var(--space-xs)] border-b border-[var(--color-rule)] sm:px-[var(--space-md)] sm:py-[var(--space-sm)]">
+          <h1 className="font-display text-[length:var(--text-md)] font-semibold leading-[var(--leading-tight)] tracking-[-0.02em] text-[var(--color-ink)]">
+            Add job
           </h1>
-          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)] mt-[var(--space-3xs)]">
+          <p className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] mt-[var(--space-3xs)]">
             Create a new scheduled notification job.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-[var(--space-xs)] py-[var(--space-xs)] flex flex-col">
+        <form onSubmit={handleSubmit} className="px-[var(--space-sm)] py-[var(--space-sm)] flex flex-col sm:px-[var(--space-md)]">
           {/* Name group */}
           <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
-            <label className="text-[length:var(--text-sm)] font-medium text-[var(--color-ink-2)]" htmlFor="job-name">
-              Name <span className="text-[var(--color-danger)]">*</span>
+            <label className={labelClass} htmlFor="job-name">
+              Name <RequiredMark />
             </label>
             <input
               id="job-name"
@@ -88,8 +100,8 @@ export function AddJobForm() {
 
           {/* Cron group */}
           <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
-            <label className="text-[length:var(--text-sm)] font-medium text-[var(--color-ink-2)]" htmlFor="job-cron">
-              Cron Expression <span className="text-[var(--color-danger)]">*</span>
+            <label className={labelClass} htmlFor="job-cron">
+              Cron Expression <RequiredMark />
             </label>
             <input
               id="job-cron"
@@ -107,13 +119,13 @@ export function AddJobForm() {
                   key={p.value}
                   type="button"
                   onClick={() => setCron(p.value)}
-                  className={`min-h-[44px] text-[length:var(--text-sm)] px-3 py-2 rounded-[var(--radius-pill)] border transition-[color,border-color,transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] active:translate-y-[1px] ${
+                  className={`min-h-[44px] text-[length:var(--text-sm)] leading-[var(--leading-body)] px-3 py-2 rounded-[var(--radius-pill)] border transition-[color,border-color,transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] active:translate-y-[1px] ${
                     cron.trim() === p.value
                       ? "border-[var(--color-accent)] text-[var(--color-accent)]"
                       : "border-[var(--color-rule)] text-[var(--color-ink-2)] hover:border-[var(--color-ink-2)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]"
                   }`}
                 >
-                  <span className="font-mono">{p.value}</span>
+                  <span className="font-mono tabular-nums">{p.value}</span>
                   <span className="ml-1.5">— {p.label}</span>
                 </button>
               ))}
@@ -124,9 +136,9 @@ export function AddJobForm() {
 
           {/* Preview */}
           {cron && (
-            <div className="flex items-center gap-[var(--space-3xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)]">
+            <div className="flex items-center gap-[var(--space-3xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)]">
               <span className="text-[var(--color-ink-2)]">Preview:</span>
-              <code className="font-mono text-[var(--color-accent)] min-w-0 [overflow-wrap:anywhere]">
+              <code className="font-mono tabular-nums text-[var(--color-accent)] min-w-0 [overflow-wrap:anywhere]">
                 {cron.trim()}
               </code>
             </div>
@@ -134,25 +146,32 @@ export function AddJobForm() {
 
           {/* Error */}
           {error && (
-            <p className="text-[length:var(--text-sm)] text-[var(--color-danger)] border border-[var(--color-danger)] rounded-[var(--radius-input)] px-3 py-2">
+            <p
+              className="rounded-[var(--radius-input)] border px-[var(--space-2xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)]"
+              style={{
+                borderColor: "color-mix(in oklab, var(--color-danger) 30%, transparent)",
+                backgroundColor: "color-mix(in oklab, var(--color-danger) 10%, transparent)",
+                color: "var(--color-danger)",
+              }}
+            >
               {error}
             </p>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-[var(--space-2xs)] pt-[var(--space-2xs)] border-t border-[var(--color-rule)] mt-[var(--space-2xs)]">
+          {/* Actions — stacked full-width below sm */}
+          <div className="flex flex-col items-stretch gap-[var(--space-2xs)] pt-[var(--space-2xs)] border-t border-[var(--color-rule)] mt-[var(--space-2xs)] sm:flex-row sm:items-center">
             <Link
               href="/dashboard"
-              className="inline-flex min-h-[44px] items-center px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] text-[var(--color-ink-2)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
+              className="inline-flex min-h-[44px] w-full items-center justify-center px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-[1px] sm:w-auto"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading || !name.trim() || !cron.trim()}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] transition-[transform,filter] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 px-4 py-2 rounded-[10px] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] transition-[transform,filter] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 sm:w-auto sm:ml-auto"
             >
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden />}
               {loading ? "Creating…" : "Add job"}
             </button>
           </div>

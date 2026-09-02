@@ -27,3 +27,9 @@ h1, h2, h3 {
   background: var(--color-accent);
   color: var(--color-accent-ink);
 }
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}

@@ -15,19 +15,16 @@ export function TopBar({ title }: { title: string }) {
       : user.fullName?.[0] ?? "U";
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between gap-2 h-14 px-4 md:px-6 border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] h-14 px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
       {/* Mobile: wordmark (sidebar hidden below md); Desktop: page title */}
-      <div className="flex items-center gap-2 min-w-0 md:min-w-0">
-        <span className="flex md:hidden items-center gap-2 shrink-0">
+      <div className="flex items-center gap-[var(--space-2xs)] min-w-0 md:min-w-0">
+        <span className="flex md:hidden items-center gap-[var(--space-2xs)] shrink-0">
           <Bell className="w-5 h-5 text-[var(--color-accent)]" />
-          <span className="text-[var(--text-md)] font-semibold text-[var(--color-ink)] whitespace-nowrap">
+          <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] whitespace-nowrap">
             Notifything
           </span>
         </span>
-        <h1
-          className="hidden md:block text-sm font-semibold text-[var(--color-ink)] min-w-0"
-          style={{ fontSize: "1rem", overflowWrap: "anywhere" }}
-        >
+        <h1 className="hidden md:block font-display text-[length:1.25rem] leading-[var(--leading-tight)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
           {title}
         </h1>
       </div>
@@ -41,8 +38,8 @@ export function TopBar({ title }: { title: string }) {
           <Dropdown.Menu onAction={(key) => { if (key === "logout") signOut({ redirectUrl: "/sign-in" }); }}>
             <Dropdown.Item id="profile" textValue={user.fullName}>
               <div>
-                <p className="text-sm font-medium">{user.fullName}</p>
-                <p className="text-xs text-[var(--color-ink-2)]">{user.emailAddress}</p>
+                <p className="text-[length:var(--text-sm)] font-medium">{user.fullName}</p>
+                <p className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{user.emailAddress}</p>
               </div>
             </Dropdown.Item>
             <Dropdown.Item id="settings" textValue="Settings">

@@ -1,31 +1,17 @@
 /* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import type { Job } from "@/lib/types";
-
-function formatDate(iso: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { formatDate } from "@/lib/format";
 
 function StatusChip({ enabled }: { enabled: boolean }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none ${
-        enabled
-          ? "border-[var(--color-accent)] text-[var(--color-accent)]"
-          : "border-[var(--color-rule)] text-[var(--color-ink-2)]"
-      }`}
-    >
+    <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-[var(--color-rule)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-ink-2)]">
       <span
         className={`w-1.5 h-1.5 rounded-full ${
           enabled ? "bg-[var(--color-accent)]" : "bg-[var(--color-rule)]"
         }`}
+        aria-hidden
       />
       {enabled ? "Enabled" : "Disabled"}
     </span>
@@ -35,9 +21,18 @@ function StatusChip({ enabled }: { enabled: boolean }) {
 export function JobsTable({ jobs }: { jobs: Job[] }) {
   if (jobs.length === 0) {
     return (
-      <p className="px-[var(--space-xs)] py-[var(--space-md)] text-center text-[length:var(--text-sm)] text-[var(--color-ink-2)]">
-        No jobs found.
-      </p>
+      <div className="flex flex-col items-center gap-[var(--space-2xs)] px-[var(--space-xs)] py-[var(--space-md)] text-center">
+        <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">
+          No jobs found.
+        </p>
+        <Link
+          href="/jobs/new"
+          className="inline-flex min-h-[44px] items-center justify-center gap-1.5 text-[length:var(--text-sm)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] px-3 py-2 rounded-[10px] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px]"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add job
+        </Link>
+      </div>
     );
   }
 

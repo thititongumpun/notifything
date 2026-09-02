@@ -1,26 +1,38 @@
 import { AppShell } from "@/components/layout/AppShell";
-import { PaymentsClient } from "./components/PaymentsClient";
-import type { JobDetail } from "@/lib/types";
-
-const PAYMENT_JOB_IDS = [
-  "tfcidrg1g1mc0smrq2xhl5lf", // ค่างวดรถ
-  "tobengn1cfytol4a0yx2q3rw", // ค่าบ้าน
-];
-
-async function getJobDetail(id: string): Promise<JobDetail> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Failed to fetch job ${id}`);
-  return res.json();
-}
+import { PaymentsClient, type JobEntry } from "./components/PaymentsClient";
+import { getJobs, getJobDetail } from "@/lib/api";
+import type { Job } from "@/lib/types";
 
 export default async function PaymentsPage() {
-  const jobs = await Promise.all(PAYMENT_JOB_IDS.map(getJobDetail));
+  let jobs: Job[] = [];
+  let listError: string | null = null;
+
+  try {
+    jobs = await getJobs();
+  } catch (e) {
+    listError = e instanceof Error ? e.message : "Failed to load jobs";
+  }
+
+  // Per-job isolation: one failed detail-fetch becomes an inline error card,
+  // never a crashed page.
+  const entries = await Promise.all(
+    jobs.map(async (job): Promise<JobEntry> => {
+      try {
+        return { id: job.id, name: job.name, detail: await getJobDetail(job.id), error: null };
+      } catch (e) {
+        return {
+          id: job.id,
+          name: job.name,
+          detail: null,
+          error: e instanceof Error ? e.message : `Failed to load ${job.name}`,
+        };
+      }
+    }),
+  );
 
   return (
     <AppShell>
-      <PaymentsClient jobs={jobs} />
+      <PaymentsClient entries={entries} listError={listError} />
     </AppShell>
   );
 }

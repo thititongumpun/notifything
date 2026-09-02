@@ -1,16 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Noto_Sans_Thai, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const notoThai = Noto_Sans_Thai({
+  variable: "--font-noto-thai",
+  subsets: ["latin", "thai"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -40,11 +45,11 @@ export default function RootLayout({
         variables: { colorBackground: "#16181d", colorText: "#f2f3f5", colorPrimary: "#7c7cf4" },
       }}
     >
-      <html lang="en" className="dark">
+      <html lang="en" className={`dark ${inter.variable} ${notoThai.variable} ${jetbrainsMono.variable}`}>
         <head>
           <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         </head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className="antialiased">
           <ServiceWorkerRegistration />
           {children}
         </body>

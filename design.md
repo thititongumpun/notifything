@@ -29,14 +29,21 @@ Accent placement: ≤ 5% of viewport — primary CTA, active nav marker, focus
 rings, one data-highlight per stat card. Never accent body text.
 
 ## Typography
-- Display: Geist, weight 600, roman (no italics on headings).
-- Body: Geist, weight 400.
-- Mono: Geist Mono, weight 400 — cron expressions, IDs, amounts.
+- Display: Inter, weight 600, roman (no italics on headings).
+- Body: Inter, weight 400.
+- Mono: JetBrains Mono, weight 400 — cron expressions, IDs, amounts.
+- Fallback chain: `var(--font-inter), var(--font-noto-thai), system-ui` —
+  Noto Sans Thai guarantees ฿ and Thai text render consistently; the mono
+  chain carries the same Noto fallback for the same reason.
+- Font utilities are registered via `@theme inline` in `app/globals.css`
+  (Tailwind v4 has no tailwind.config).
 - Display tracking: -0.02em. Page title = 1.25rem (app chrome, not landing hero).
 - Scale: --text-xs 0.75 / --text-sm 0.875 / --text-md 1.125 / --text-lg 1.375.
 - Line-height: body 1.6; table cells 1.5; headings 1.2.
 - Table body text: minimum --text-sm (0.875rem). Never --text-xs for table
   cell content — xs is reserved for labels and eyebrows only.
+
+Amended 2026-09-02.
 
 ## Data display (tables)
 - Row padding: --space-2xs vertical / --space-xs horizontal minimum.
@@ -50,6 +57,28 @@ rings, one data-highlight per stat card. Never accent body text.
 - Never combine `font-display` and `font-mono` on the same element.
 
 Amended 2026-08-26.
+
+## Data visualization (charts)
+- Colour semantics: accent = paid, rule = due. No other hues in charts.
+- No gradients, no 3D, no glow — flat fills and hairline strokes only.
+- Tick labels: --font-mono with `font-variant-numeric: tabular-nums`.
+- Gridlines: 1px --color-rule hairlines, horizontal only.
+- Height: 120–160px — charts are instruments, not heroes.
+- Accessibility: every chart ships an sr-only data table carrying the same
+  values (screen readers get the numbers, not the bars).
+- Mobile (<768px): bars compress, labels thin out (drop non-essential ticks);
+  never horizontal scroll.
+- Implementation: div-bar rows (flex + token colours) preferred over chart
+  libraries.
+
+Amended 2026-09-02.
+
+## Card action rows
+- Anchored by a 1px border-top rule in --color-rule.
+- Per card: secondary actions plus a single primary verb.
+- Touch targets ≥44px in both dimensions.
+
+Amended 2026-09-02.
 
 ## Spacing
 4-point named scale in `tokens.css` (`--space-3xs` … `--space-3xl`).
@@ -68,7 +97,7 @@ Pages reference `var(--space-*)`, never raw values.
 - Focus: instant 2px --color-focus ring, never animated.
 
 ## CTA voice
-- Primary: accent fill, radius 10px, Geist 500, verb-first copy ("Add job").
+- Primary: accent fill, radius 10px, Inter 500, verb-first copy ("Add job").
 - Secondary: 1px rule border, paper-2 fill, ink text.
 - Destructive: oklch(62% 0.19 25) red, outline style only.
 
@@ -87,11 +116,13 @@ Pages reference `var(--space-*)`, never raw values.
   hairline-keyed stat strip or a thin progress bar in payment cards.
 
 ## What pages MUST share
-- The wordmark (bell glyph + "Notifything", Geist 600).
+- The wordmark (bell glyph + "Notifything", Inter 600).
 - Accent colour and its placement discipline.
-- Geist / Geist Mono pairing.
+- Inter 400/600 + JetBrains Mono pairing (fallback chain per Typography).
 - CTA voice (radius 10px, verb-first).
 - Surface hierarchy: paper → paper-2 (cards) → paper-3 (hover/input).
+
+Amended 2026-09-02.
 
 ## Exports
 

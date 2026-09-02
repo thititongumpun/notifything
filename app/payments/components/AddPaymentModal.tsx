@@ -22,6 +22,7 @@ import type { PaymentPlan } from "@/lib/types";
 
 interface AddPaymentModalProps {
   plan: PaymentPlan;
+  prefill?: PaymentPlan["payments"][number];
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -44,13 +45,17 @@ function RequiredMark() {
   );
 }
 
-export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalProps) {
+export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymentModalProps) {
   const nextMonth =
     plan.payments.length > 0 ? Math.max(...plan.payments.map((p) => p.paymentMonth)) + 1 : 1;
 
-  const [paymentMonth, setPaymentMonth] = useState(nextMonth);
-  const [dueDate, setDueDate] = useState<CalendarDate | null>(null);
-  const [amount, setAmount] = useState(Number(plan.monthlyAmount) || 0);
+  const [paymentMonth, setPaymentMonth] = useState(prefill?.paymentMonth ?? nextMonth);
+  const [dueDate, setDueDate] = useState<CalendarDate | null>(
+    prefill?.dueDate ? parseDate(prefill.dueDate) : null,
+  );
+  const [amount, setAmount] = useState(
+    prefill ? Number(prefill.amount) || 0 : Number(plan.monthlyAmount) || 0,
+  );
   const [isPaid, setIsPaid] = useState(true);
   const [paidDate, setPaidDate] = useState<CalendarDate | null>(parseDate(today()));
   const [notes, setNotes] = useState("");
@@ -132,7 +137,7 @@ export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalPro
             </Modal.Header>
             <Modal.Body>
               <Form onSubmit={handleSubmit} className="flex flex-col gap-[var(--space-2xs)]">
-                <div className="grid grid-cols-2 gap-[var(--space-2xs)]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-2xs)]">
                   <TextField className="flex flex-col gap-[var(--space-3xs)]">
                     <Label className={labelClass}>
                       Payment Month <RequiredMark />
@@ -254,7 +259,7 @@ export function AddPaymentModal({ plan, onClose, onSuccess }: AddPaymentModalPro
                   </div>
                 ) : null}
 
-                <div className="grid grid-cols-2 gap-[var(--space-2xs)]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-2xs)]">
                   <TextField className="flex flex-col gap-[var(--space-3xs)]">
                     <Label className={labelClass}>Receipt No.</Label>
                     <Input
