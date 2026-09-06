@@ -25,16 +25,15 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
   const paidSum = months
     .filter((p) => p.isPaid)
     .reduce((sum, p) => sum + Number(p.amount), 0);
-  const totalSum = months.reduce((sum, p) => sum + Number(p.amount), 0);
+  // "Left" is against the plan's full total. Records only exist for months
+  // already billed, so summing records would report ฿0 left the moment the
+  // recorded installments are paid — while months of the schedule remain.
+  const totalSum = Number(plan.totalAmount);
   const remainingSum = Math.max(0, totalSum - paidSum);
   const monthsLeft = Math.max(0, total - paidCount);
-  const lastUnpaid = months
-    .filter((p) => !p.isPaid)
-    .reduce<string | null>(
-      (latest, p) => (!latest || p.dueDate > latest ? p.dueDate : latest),
-      null,
-    );
-  const finish = fmtMonthYear(lastUnpaid);
+  // The plan's end date is the finish line; record-based lookups can't see
+  // beyond the months billed so far.
+  const finish = fmtMonthYear(plan.endDate);
   const complete = paidCount >= total;
 
   return (
