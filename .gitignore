@@ -42,3 +42,6 @@ next-env.d.ts
 
 # PWA
 public/sw.js.map
+
+# claude code local settings
+.claude/

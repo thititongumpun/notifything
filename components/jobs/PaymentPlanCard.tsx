@@ -3,10 +3,11 @@
 import { useState } from "react";
 import type { PaymentPlan } from "@/lib/types";
 import { CheckCircle2, Circle, ChevronLeft, ChevronRight } from "lucide-react";
+import { BalanceChart } from "./BalanceChart";
 
 const PAGE_SIZE = 12;
 
-function fmt(amount: string) {
+function fmt(amount: string | number) {
   return Number(amount).toLocaleString("th-TH");
 }
 
@@ -24,10 +25,20 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
 
   const paidCount = plan.payments.filter((p) => p.isPaid).length;
   const pct = Math.round((paidCount / plan.totalMonths) * 100);
-  const paidAmount = paidCount * Number(plan.monthlyAmount);
-  const remaining = Number(plan.totalAmount) - paidAmount;
 
   const sorted = [...plan.payments].sort((a, b) => a.paymentMonth - b.paymentMonth);
+
+  // Running remaining balance after each installment. Unlike the flat monthly
+  // amount, this changes every month and shows actual payoff progress.
+  const balanceAfter = new Map<string, number>();
+  let cumPaid = 0;
+  for (const p of sorted) {
+    if (p.isPaid) cumPaid += Number(p.amount) || 0;
+    balanceAfter.set(p.id, Math.max(Number(plan.totalAmount) - cumPaid, 0));
+  }
+  const paidAmount = cumPaid;
+  const remaining = Math.max(Number(plan.totalAmount) - paidAmount, 0);
+
   const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
   const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -77,6 +88,15 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
         </div>
       </div>
 
+      {/* Balance burn-down chart */}
+      <BalanceChart
+        payments={plan.payments}
+        totalAmount={Number(plan.totalAmount)}
+        monthlyAmount={Number(plan.monthlyAmount)}
+        totalMonths={plan.totalMonths}
+        startDate={plan.startDate}
+      />
+
       {/* Payments table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -84,7 +104,7 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
             <tr className="border-b border-neutral-800">
               <th className="text-left px-5 py-2.5 text-xs font-medium text-neutral-400">#</th>
               <th className="text-left px-5 py-2.5 text-xs font-medium text-neutral-400">Due Date</th>
-              <th className="text-right px-5 py-2.5 text-xs font-medium text-neutral-400">Amount</th>
+              <th className="text-right px-5 py-2.5 text-xs font-medium text-neutral-400">Balance After</th>
               <th className="text-left px-5 py-2.5 text-xs font-medium text-neutral-400">Status</th>
               <th className="text-left px-5 py-2.5 text-xs font-medium text-neutral-400">Paid Date</th>
               <th className="text-left px-5 py-2.5 text-xs font-medium text-neutral-400">Notes</th>
@@ -98,8 +118,8 @@ export function PaymentPlanCard({ plan }: { plan: PaymentPlan }) {
               >
                 <td className="px-5 py-3 text-neutral-500 tabular-nums">{payment.paymentMonth}</td>
                 <td className="px-5 py-3 text-neutral-300">{fmtDate(payment.dueDate)}</td>
-                <td className="px-5 py-3 text-right font-mono text-neutral-300">
-                  ฿{fmt(payment.amount)}
+                <td className="px-5 py-3 text-right font-mono text-neutral-300 tabular-nums">
+                  ฿{fmt(balanceAfter.get(payment.id) ?? 0)}
                 </td>
                 <td className="px-5 py-3">
                   {payment.isPaid ? (
