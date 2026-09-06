@@ -19,34 +19,49 @@ No test suite is configured.
 
 ### Backend API
 
-The base URL is configured via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `https://notifything.thitit.beer`). There is no local API layer — pages and components call `fetch()` directly using `process.env.NEXT_PUBLIC_API_URL`. Key endpoints used:
+The base URL is configured via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `https://notifything.tuidui.help`). Key endpoints used:
 - `GET /jobs` — list all jobs
 - `GET /jobs/:id` — job detail with payment plans and subscriptions
 - `POST /jobs/addjob` — create a job
+- `POST /payments` — record a payment
+
+The API returns **200 with an empty body** for unknown job ids — treat an unparseable/missing body as not-found (see `app/(app)/jobs/[id]/page.tsx`).
+
+### Data fetching & caching
+
+- **Reads** go through `lib/api.ts` (`getJobs`, `getJobDetail`) with `next: { revalidate: 60, tags: ["jobs"] }` — pages are served from cache and revalidated in the background.
+- **Writes** never call the backend directly from the browser. They POST to same-origin route handlers (`app/api/payments/route.ts`, `app/api/jobs/addjob/route.ts`) that forward to the backend and call `revalidateTag("jobs", "max")`, so `router.refresh()` immediately shows fresh data. Any new mutation endpoint should follow this proxy + revalidate pattern.
 
 ### App Structure
 
+- `app/(app)/` route group holds the authenticated pages (`dashboard`, `jobs`, `payments`); its `layout.tsx` renders `AppShell` so the sidebar/topbar stay mounted across navigations
+- Every route has a `loading.tsx` skeleton (instant paint while data streams in); `app/(app)/error.tsx` is the error fallback
 - **Server components** handle data fetching (async functions in `app/**/page.tsx`)
 - **Client components** (`"use client"`) handle interactivity (forms, modals, tables with pagination)
-- `AppShell` wraps every page with sidebar + topbar layout
-- Root `/` redirects to `/dashboard`
+- Root `/` redirects to `/dashboard`; Clerk middleware in `proxy.ts` protects everything except `/sign-in`
 
 ### Key Pages
-- `/dashboard` — job stats and job table
+
+- `/dashboard` — stat strip, payment progress (per-plan charts), jobs table
 - `/jobs/new` — add job form with cron presets
 - `/jobs/[id]` — job detail: subscriptions + payment plans
-- `/payments` — payment view for 2 hardcoded job IDs (car payment, house payment)
+- `/payments` — all jobs with payment plans, plan cards with running balance
 
-### Styling
+### Payment plan visualization
 
-- Tailwind CSS v4 via `@tailwindcss/postcss` (no `tailwind.config.js`)
-- HeroUI v3 beta (`@heroui/react`, `@heroui/styles`) — import `@heroui/styles` in `globals.css`
-- Always dark mode (`<html className="dark">` in layout)
-- Currency formatting uses Thai locale (`th-TH`, `฿`)
+The installment amount is fixed, so an "amount per month" chart is a flat line. `components/charts/BalanceChart.tsx` renders a remaining-balance burn-down instead (pure inline SVG, no chart library): solid accent line = recorded installments, dashed = projected to the final installment, marker at the current month. `components/charts/PlanProgress.tsx` is the continuous progress bar + "how long to 100%" numbers. `components/payments/PlanCard.tsx` shows a running "Balance After" column instead of the flat per-row amount, and computes Paid/Remaining from actual record amounts.
+
+### Design system
+
+- `tokens.css` (CSS custom properties) + `design.md` — all components use `var(--color-*)`, `var(--space-*)`, `var(--text-*)` tokens; match this style in new UI
+- Tailwind CSS v4 via `@tailwindcss/postcss` (no `tailwind.config.js`); container queries (`@min-[44rem]`) for card-level breakpoints
+- Dark-only palette (oklch), min 44px touch targets, `prefers-reduced-motion` respected
+- Fonts: Inter + Noto Sans Thai + JetBrains Mono via `next/font`
+- Currency formatting in `lib/format.ts` (Thai locale, `฿`)
 
 ### Auth
 
-`hooks/useClerkAuth.ts` is a stub returning a hardcoded mock user. No real auth is wired up.
+`hooks/useClerkAuth.ts` wraps Clerk's `useUser`. Sign-in at `/sign-in`; middleware in `proxy.ts`.
 
 ### Types
 

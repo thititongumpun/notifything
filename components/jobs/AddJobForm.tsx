@@ -41,7 +41,7 @@ export function AddJobForm() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/addjob`, {
+      const res = await fetch("/api/jobs/addjob", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), cron: cron.trim() }),

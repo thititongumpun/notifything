@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
 import { JobsTable } from "@/components/dashboard/JobsTable";
 import { PlanProgress } from "@/components/charts/PlanProgress";
-import { MonthlyBars } from "@/components/charts/MonthlyBars";
+import { BalanceChart } from "@/components/charts/BalanceChart";
 import { getJobs, getJobDetail } from "@/lib/api";
 import { fmt } from "@/lib/format";
 import type { Job, JobDetail } from "@/lib/types";
@@ -47,8 +46,7 @@ export default async function DashboardPage() {
   const activeCount = jobs.filter((j) => j.enabled).length;
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-[var(--space-md)]">
+    <div className="flex flex-col gap-[var(--space-md)]">
         {/* Stat strip */}
         <div className="grid grid-cols-2 gap-[var(--space-2xs)] lg:grid-cols-4">
           <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
@@ -116,7 +114,7 @@ export default async function DashboardPage() {
                     className="flex flex-col gap-[var(--space-2xs)] border-t border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)]"
                   >
                     <PlanProgress plan={plan} />
-                    <MonthlyBars payments={plan.payments} />
+                    <BalanceChart plan={plan} />
                   </div>
                 ))}
               </div>
@@ -147,6 +145,5 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
-    </AppShell>
   );
 }

@@ -37,10 +37,21 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
 
   const paidCount = plan.payments.filter((p) => p.isPaid).length;
   const pct = Math.min(100, Math.round((paidCount / plan.totalMonths) * 100));
-  const paidAmount = paidCount * Number(plan.monthlyAmount);
-  const remaining = Number(plan.totalAmount) - paidAmount;
 
   const sorted = [...plan.payments].sort((a, b) => a.paymentMonth - b.paymentMonth);
+
+  // Running remaining balance after each installment. Unlike the flat monthly
+  // amount (identical on every row), this changes every month and shows
+  // actual payoff progress.
+  const balanceAfter = new Map<string, number>();
+  let cumPaid = 0;
+  for (const p of sorted) {
+    if (p.isPaid) cumPaid += Number(p.amount) || 0;
+    balanceAfter.set(p.id, Math.max(Number(plan.totalAmount) - cumPaid, 0));
+  }
+  const paidAmount = cumPaid;
+  const remaining = Math.max(Number(plan.totalAmount) - paidAmount, 0);
+
   const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
   const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const nextUnpaid = sorted.find((p) => !p.isPaid) ?? null;
@@ -122,7 +133,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
             <tr className="border-b border-[var(--color-rule)]">
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">#</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Due Date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Amount</th>
+              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Balance After</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Status</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Paid Date</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Notes</th>
@@ -141,7 +152,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
                   {fmtDate(payment.dueDate)}
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right font-mono tabular-nums text-[var(--color-ink)] sm:px-[var(--space-sm)]">
-                  ฿{fmt(payment.amount)}
+                  ฿{fmt(balanceAfter.get(payment.id) ?? 0)}
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
                   <StatusPill isPaid={payment.isPaid} />
@@ -167,7 +178,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
           >
             <div className="flex min-w-0 items-start justify-between gap-[var(--space-2xs)]">
               <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">
-                #{payment.paymentMonth} · ฿{fmt(payment.amount)}
+                #{payment.paymentMonth} · ฿{fmt(balanceAfter.get(payment.id) ?? 0)} left
               </p>
               <StatusPill isPaid={payment.isPaid} />
             </div>

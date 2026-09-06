@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
 import type { JobDetail } from "@/lib/types";
 import { PlanCard } from "@/components/payments/PlanCard";
 import { formatDate } from "@/lib/format";
@@ -8,11 +7,14 @@ import { ArrowLeft } from "lucide-react";
 
 async function getJob(id: string): Promise<JobDetail> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, {
-    cache: "no-store",
+    next: { revalidate: 60, tags: ["jobs"] },
   });
   if (res.status === 404) notFound();
   if (!res.ok) throw new Error(`Failed to fetch job: ${res.status}`);
-  return res.json();
+  // The API returns 200 with an empty body for unknown ids.
+  const job = await res.json().catch(() => null);
+  if (!job || job.id !== id) notFound();
+  return job;
 }
 
 function StatusPill({ on, label }: { on: boolean; label: string }) {
@@ -53,8 +55,7 @@ export default async function JobDetailPage({ params }: Props) {
   }
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-[var(--space-sm)] max-w-3xl mx-auto w-full">
+    <div className="flex flex-col gap-[var(--space-sm)] max-w-3xl mx-auto w-full">
         {/* Back */}
         <Link
           href="/dashboard"
@@ -173,6 +174,5 @@ export default async function JobDetailPage({ params }: Props) {
           )}
         </section>
       </div>
-    </AppShell>
   );
 }

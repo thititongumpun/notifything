@@ -45,3 +45,6 @@ public/sw.js.map
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# claude code local (machine-specific) settings
+.claude/settings.local.json

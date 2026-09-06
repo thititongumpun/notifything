@@ -76,7 +76,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments`, {
+      const res = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

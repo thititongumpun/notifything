@@ -1,4 +1,3 @@
-import { AppShell } from "@/components/layout/AppShell";
 import { PaymentsClient, type JobEntry } from "./components/PaymentsClient";
 import { getJobs, getJobDetail } from "@/lib/api";
 import type { Job } from "@/lib/types";
@@ -30,9 +29,5 @@ export default async function PaymentsPage() {
     }),
   );
 
-  return (
-    <AppShell>
-      <PaymentsClient entries={entries} listError={listError} />
-    </AppShell>
-  );
+  return <PaymentsClient entries={entries} listError={listError} />;
 }
