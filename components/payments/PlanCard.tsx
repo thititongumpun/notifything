@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PaymentPlan } from "@/lib/types";
 import { fmt, fmtDate } from "@/lib/format";
+import { BalanceChart } from "@/components/charts/BalanceChart";
 
 const PAGE_SIZE = 12;
 
@@ -99,31 +100,17 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
         </div>
       </div>
 
-      {/* Progress — 4px segmented bar, accent = paid, rule = due */}
-      <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-        <div className="mb-[var(--space-3xs)] flex items-center justify-between text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+      {/* Progress — months paid + remaining-balance burn-down. A flat bar
+          (or one equal segment per installment) carries no information for a
+          fixed installment plan; the running balance drops every month. */}
+      <div className="flex flex-col gap-[var(--space-3xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
+        <div className="flex items-center justify-between text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
           <span>
             {paidCount} of {plan.totalMonths} months paid
           </span>
           <span className="font-mono tabular-nums">{pct}%</span>
         </div>
-        <div
-          className="flex h-[8px] w-full gap-px"
-          role="progressbar"
-          aria-label={`${plan.description} payment progress`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-        >
-          {sorted.map((payment) => (
-            <div
-              key={payment.id}
-              className={`h-full min-w-0 flex-1 rounded-full ${
-                payment.isPaid ? "bg-[var(--color-accent)]" : "bg-[var(--color-track)]"
-              }`}
-            />
-          ))}
-        </div>
+        <BalanceChart plan={plan} />
       </div>
 
       {/* Payments — desktop table */}

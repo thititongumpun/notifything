@@ -62,7 +62,10 @@ export function PaymentsClient({
             >
               {entry.name}
             </h2>
-            <div className="grid grid-cols-1 gap-[var(--space-xs)] xl:[grid-template-columns:repeat(2,minmax(0,1fr))]">
+            {/* Single column: the card's desktop table needs a ~44rem
+                container, so a 2-up grid at xl would leave half-width cards
+                rendering the mobile stacked layout on wide screens. */}
+            <div className="grid grid-cols-1 gap-[var(--space-xs)]">
               {entry.detail?.paymentPlans.map((plan) => (
                 <PlanCard
                   key={plan.id}
