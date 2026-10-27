@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PaymentPlan } from "@/lib/types";
 import { fmt, fmtDate } from "@/lib/format";
 import { BalanceChart } from "@/components/charts/BalanceChart";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { btnPrimary, btnSecondary } from "@/components/ui/styles";
 
 const PAGE_SIZE = 12;
 
@@ -17,20 +19,6 @@ interface PlanCardProps {
   onAddPayment?: () => void;
   /** Parent opens its AddPaymentModal with this record as `prefill`. */
   onRecordPayment?: (record: PaymentRecord) => void;
-}
-
-function StatusPill({ isPaid }: { isPaid: boolean }) {
-  return isPaid ? (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-accent)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-accent)]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" aria-hidden />
-      Paid
-    </span>
-  ) : (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--color-rule)] px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none text-[var(--color-ink-2)]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-rule)]" aria-hidden />
-      Unpaid
-    </span>
-  );
 }
 
 export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps) {
@@ -58,7 +46,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
   const nextUnpaid = sorted.find((p) => !p.isPaid) ?? null;
 
   return (
-    <div className="@container flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:bg-[var(--color-paper-3)] active:translate-y-px">
+    <div className="@container flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
       {/* Plan header */}
       <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
         <p
@@ -119,10 +107,10 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
           <thead>
             <tr className="border-b border-[var(--color-rule)]">
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">#</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Due Date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Balance After</th>
+              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Due date</th>
+              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Balance after</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Status</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Paid Date</th>
+              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Paid date</th>
               <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Notes</th>
             </tr>
           </thead>
@@ -142,7 +130,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
                   ฿{fmt(balanceAfter.get(payment.id) ?? 0)}
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-                  <StatusPill isPaid={payment.isPaid} />
+                  <StatusChip on={payment.isPaid} label={payment.isPaid ? "Paid" : "Unpaid"} />
                 </td>
                 <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
                   {fmtDate(payment.paidDate)}
@@ -167,7 +155,9 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
               <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">
                 #{payment.paymentMonth} · ฿{fmt(balanceAfter.get(payment.id) ?? 0)} left
               </p>
-              <StatusPill isPaid={payment.isPaid} />
+              <span className="shrink-0">
+                <StatusChip on={payment.isPaid} label={payment.isPaid ? "Paid" : "Unpaid"} />
+              </span>
             </div>
             <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)]">
               <div className="flex min-w-0 gap-[var(--space-3xs)]">
@@ -238,7 +228,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
             <button
               type="button"
               onClick={onAddPayment}
-              className="min-h-[44px] rounded-[10px] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-[var(--space-sm)] text-[length:var(--text-sm)] leading-none font-medium text-[var(--color-ink)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] active:translate-y-px"
+              className={btnSecondary}
             >
               Add payment
             </button>
@@ -247,7 +237,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
             <button
               type="button"
               onClick={() => onRecordPayment(nextUnpaid)}
-              className="min-h-[44px] rounded-[10px] bg-[var(--color-accent)] px-[var(--space-sm)] text-[length:var(--text-sm)] leading-none font-medium text-[var(--color-accent-ink)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-focus)] active:translate-y-px"
+              className={btnPrimary}
             >
               Record next payment
             </button>

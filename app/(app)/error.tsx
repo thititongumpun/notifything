@@ -1,5 +1,7 @@
 "use client";
 
+import { btnPrimary } from "@/components/ui/styles";
+
 export default function AppError({
   error,
   reset,
@@ -13,15 +15,15 @@ export default function AppError({
         <p className="text-[length:var(--text-sm)] font-medium leading-[var(--leading-body)] text-[var(--color-danger)]">
           Something went wrong
         </p>
-        <p className="mt-[var(--space-3xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          {error.message || "Failed to load data."}
+        <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+          Couldn&apos;t load this page. {error.message}
         </p>
       </div>
       <button
         onClick={reset}
-        className="min-h-[44px] rounded-[10px] bg-[var(--color-accent)] px-[var(--space-sm)] text-[length:var(--text-sm)] font-medium leading-none text-[var(--color-accent-ink)] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:brightness-110 active:translate-y-px"
+        className={btnPrimary}
       >
-        Try Again
+        Try again
       </button>
     </div>
   );

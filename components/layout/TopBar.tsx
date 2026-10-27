@@ -24,12 +24,12 @@ export function TopBar({ title }: { title: string }) {
             Notifything
           </span>
         </span>
-        <h1 className="hidden md:block font-display text-[length:1.25rem] leading-[var(--leading-tight)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
+        <p className="hidden md:block font-display text-[length:var(--text-title)] leading-[var(--leading-tight)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
           {title}
-        </h1>
+        </p>
       </div>
       <Dropdown>
-        <Dropdown.Trigger>
+        <Dropdown.Trigger className="min-h-11 min-w-11 grid place-items-center rounded-full">
           <Avatar size="sm" color="accent" className="cursor-pointer">
             <Avatar.Fallback>{initials}</Avatar.Fallback>
           </Avatar>
