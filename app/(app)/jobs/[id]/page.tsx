@@ -4,6 +4,9 @@ import type { JobDetail } from "@/lib/types";
 import { PlanCard } from "@/components/payments/PlanCard";
 import { formatDate } from "@/lib/format";
 import { ArrowLeft } from "lucide-react";
+import { CronSchedule } from "@/components/ui/CronSchedule";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { backLink } from "@/components/ui/styles";
 
 async function getJob(id: string): Promise<JobDetail> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, {
@@ -15,24 +18,6 @@ async function getJob(id: string): Promise<JobDetail> {
   const job = await res.json().catch(() => null);
   if (!job || job.id !== id) notFound();
   return job;
-}
-
-function StatusPill({ on, label }: { on: boolean; label: string }) {
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border px-2 py-1 text-[length:var(--text-xs)] font-medium leading-none ${
-        on
-          ? "border-[var(--color-accent)] text-[var(--color-accent)]"
-          : "border-[var(--color-rule)] text-[var(--color-ink-2)]"
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${on ? "bg-[var(--color-accent)]" : "bg-[var(--color-rule)]"}`}
-        aria-hidden
-      />
-      {label}
-    </span>
-  );
 }
 
 const labelClass =
@@ -57,12 +42,9 @@ export default async function JobDetailPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-[var(--space-sm)] max-w-3xl mx-auto w-full">
         {/* Back */}
-        <Link
-          href="/dashboard"
-          className="inline-flex min-h-[44px] items-center gap-1.5 text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:text-[var(--color-ink)] active:translate-y-[1px]"
-        >
+        <Link href="/dashboard" className={backLink}>
           <ArrowLeft className="w-4 h-4" aria-hidden />
-          Back to Dashboard
+          Back to dashboard
         </Link>
 
         {/* Job header */}
@@ -71,81 +53,79 @@ export default async function JobDetailPage({ params }: Props) {
             <h1 className="min-w-0 font-display text-[length:var(--text-lg)] font-semibold leading-[var(--leading-tight)] tracking-[-0.02em] text-[var(--color-ink)] [overflow-wrap:anywhere]">
               {job.name}
             </h1>
-            <StatusPill on={job.enabled} label={job.enabled ? "Enabled" : "Disabled"} />
+            <StatusChip on={job.enabled} label={job.enabled ? "Enabled" : "Disabled"} />
           </div>
         </header>
 
         {/* Job facts */}
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-[var(--space-xs)] gap-y-[var(--space-2xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
+        <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-[var(--space-xs)] gap-y-[var(--space-2xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
           <div className="min-w-0">
-            <p className={labelClass}>Cron Expression</p>
-            <code className="mt-[var(--space-3xs)] block min-w-0 font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">
-              {job.cron.trim()}
-            </code>
+            <dt className={labelClass}>Cron expression</dt>
+            <dd className="mt-[var(--space-3xs)] min-w-0"><CronSchedule cron={job.cron} /></dd>
           </div>
           <div className="min-w-0">
-            <p className={labelClass}>Job ID</p>
-            <code className="mt-[var(--space-3xs)] block min-w-0 font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] [overflow-wrap:anywhere]">
+            <dt className={labelClass}>Job ID</dt>
+            <dd className="mt-[var(--space-3xs)] min-w-0 font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] [overflow-wrap:anywhere]">
               {job.id}
-            </code>
+            </dd>
           </div>
           <div className="min-w-0">
-            <p className={labelClass}>Last Run</p>
-            <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
+            <dt className={labelClass}>Last run</dt>
+            <dd className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
               {formatDate(job.lastRunAt)}
-            </p>
+            </dd>
           </div>
           <div className="min-w-0">
-            <p className={labelClass}>Created</p>
-            <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
+            <dt className={labelClass}>Created</dt>
+            <dd className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
               {formatDate(job.createdAt)}
-            </p>
+            </dd>
           </div>
-        </section>
+        </dl>
 
         {/* Subscription */}
         <section className="pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
           <h2 className="font-display text-[length:var(--text-md)] font-semibold leading-[var(--leading-tight)] tracking-[-0.02em] text-[var(--color-ink)]">
-            Push Subscription
+            Push subscription
           </h2>
           {job.subscriptions ? (
-            <div className="mt-[var(--space-2xs)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-[var(--space-xs)] gap-y-[var(--space-2xs)]">
+            <dl className="mt-[var(--space-2xs)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-x-[var(--space-xs)] gap-y-[var(--space-2xs)]">
               <div className="min-w-0">
-                <p className={labelClass}>Status</p>
-                <div className="mt-[var(--space-3xs)]">
-                  <StatusPill
+                <dt className={labelClass}>Status</dt>
+                <dd className="mt-[var(--space-3xs)]">
+                  <StatusChip
                     on={job.subscriptions.isActive}
                     label={job.subscriptions.isActive ? "Active" : "Inactive"}
                   />
-                </div>
+                </dd>
               </div>
               <div className="min-w-0">
-                <p className={labelClass}>Subscription ID</p>
-                <code className="mt-[var(--space-3xs)] block min-w-0 font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] [overflow-wrap:anywhere]">
+                <dt className={labelClass}>Subscription ID</dt>
+                <dd className="mt-[var(--space-3xs)] min-w-0 font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] [overflow-wrap:anywhere]">
                   {job.subscriptions.id}
-                </code>
+                </dd>
               </div>
               <div className="min-w-0">
-                <p className={labelClass}>Subscribed At</p>
-                <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
+                <dt className={labelClass}>Subscribed at</dt>
+                <dd className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
                   {formatDate(job.subscriptions.createdAt)}
-                </p>
+                </dd>
               </div>
               <div className="min-w-0">
-                <p className={labelClass}>Updated At</p>
-                <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
+                <dt className={labelClass}>Updated at</dt>
+                <dd className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-sm)] leading-[var(--leading-body)] tabular-nums text-[var(--color-ink)]">
                   {formatDate(job.subscriptions.updatedAt)}
-                </p>
+                </dd>
               </div>
               {pushEndpoint && (
                 <div className="col-span-full min-w-0">
-                  <p className={labelClass}>Push Endpoint</p>
-                  <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]">
+                  <dt className={labelClass}>Push endpoint</dt>
+                  <dd className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]">
                     {pushEndpoint}
-                  </p>
+                  </dd>
                 </div>
               )}
-            </div>
+            </dl>
           ) : (
             <p className="mt-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
               No subscription registered.
@@ -156,7 +136,7 @@ export default async function JobDetailPage({ params }: Props) {
         {/* Payment Plans — creation lives on /payments card footers, so no action callbacks here */}
         <section className="flex flex-col gap-[var(--space-2xs)]">
           <h2 className="font-display text-[length:var(--text-md)] font-semibold leading-[var(--leading-tight)] tracking-[-0.02em] text-[var(--color-ink)]">
-            Payment Plans
+            Payment plans
             {job.paymentPlans.length > 0 && (
               <span className="ml-2 font-body text-[length:var(--text-sm)] font-normal tracking-normal text-[var(--color-ink-2)]">
                 ({job.paymentPlans.length})

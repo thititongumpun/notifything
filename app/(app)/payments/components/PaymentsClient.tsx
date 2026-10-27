@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JobDetail, PaymentPlan } from "@/lib/types";
 import { PlanCard } from "@/components/payments/PlanCard";
+import { dangerCallout } from "@/components/ui/styles";
 import { AddPaymentModal } from "./AddPaymentModal";
 
 /** One job from discovery: either its detail (may have 0 plans) or the fetch error. */
@@ -16,15 +17,6 @@ export interface JobEntry {
 }
 
 type PaymentRecord = PaymentPlan["payments"][number];
-
-const errorCardClass =
-  "rounded-[var(--radius-input)] border px-[var(--space-2xs)] py-[var(--space-2xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)]";
-
-const errorCardStyle = {
-  borderColor: "color-mix(in oklab, var(--color-danger) 30%, transparent)",
-  backgroundColor: "color-mix(in oklab, var(--color-danger) 10%, transparent)",
-  color: "var(--color-danger)",
-} as const;
 
 export function PaymentsClient({
   entries,
@@ -47,9 +39,10 @@ export function PaymentsClient({
 
   return (
     <>
+      <h1 className="sr-only">Payments</h1>
       <div className="flex flex-col gap-[var(--space-md)]">
         {listError ? (
-          <p className={errorCardClass} style={errorCardStyle}>
+          <p className={dangerCallout}>
             Couldn&apos;t load jobs: {listError}
           </p>
         ) : null}
@@ -79,7 +72,7 @@ export function PaymentsClient({
         ))}
 
         {errored.map((entry) => (
-          <p key={entry.id} className={errorCardClass} style={errorCardStyle}>
+          <p key={entry.id} className={dangerCallout}>
             Couldn&apos;t load payment plans for {entry.name}
             {entry.error ? ` — ${entry.error}` : ""}
           </p>
@@ -90,7 +83,7 @@ export function PaymentsClient({
             <p className="text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-ink)]">
               No payment plans yet
             </p>
-            <p className="mt-[var(--space-3xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+            <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
               Jobs are created from the jobs pages — add a payment plan there and it will show up here.
             </p>
           </div>

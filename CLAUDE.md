@@ -11,7 +11,7 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
-No test suite is configured.
+Cron description self-check: `npx tsx lib/cron.test.ts` (exits non-zero on mismatch).
 
 ## Architecture
 

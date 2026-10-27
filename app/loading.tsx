@@ -8,7 +8,7 @@ export default function RootLoading() {
       <div className="font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)]">
         Notifything
       </div>
-      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-accent)]" />
+      <span className="sr-only">Loading…</span>
     </div>
   );
 }

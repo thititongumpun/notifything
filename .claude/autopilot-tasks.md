@@ -1,27 +1,21 @@
-# Autopilot: fix all app responsive (full audit, all viewports, all pages)
-**Executing:** done — 6 tasks, 2 fix rounds, 5 findings all resolved. Not committed.
+# Autopilot run: Impeccable pass + Thai cron descriptions (2026-10-27)
 
-Root cause: commit 883e8f9 used `overflow-hidden` (clips) not `overflow-x-auto` (scrolls),
-and fired container/breakpoints ~120px below the tables' min-content width.
-Plus `viewportFit` missing from layout viewport export => all `env(safe-area-inset-*)` = 0.
+Request: "ใช้ impeccable design ทั้งหมด" + show a Thai description next to every cron expression (e.g. `* * * * *` → "ทำงานทุกๆ 1 นาที").
+Approach: Impeccable Operate-mode refinement (keep design.md identity), pure `describeCron` + shared `CronSchedule`.
+Previous run (responsive fixes) is in git history of this file; its fixes must not regress.
 
-- [x] 1. viewportFit:"cover" — enable safe-area insets   [haiku]  (simple)
-- [x] 2. TopBar/AppShell consume top+bottom insets       [sonnet]
-- [x] 3. JobsTable: md->lg + real scroll container       [haiku]  (simple)
-- [x] 4. PlanCard: 30rem->44rem + overflow-x-auto        [haiku]  (simple)
-- [x] 5. Payments grid: two-up at xl, not md             [haiku]  (simple)
-- [x] 6. Overflow proof, 5 routes x 6 widths             [opus]   (complex)
-- [x] 7. Review                                          [opus]
+| # | Task | Files | Depends | Status |
+|---|------|-------|---------|--------|
+| 1 | Spike: install + tsc/lint/build baselines | none | – | done |
+| 2 | `lib/cron.ts` + `lib/cron.test.ts` + `components/ui/CronSchedule.tsx` | new | 1 | done |
+| 3 | tokens.css, globals.css, `components/ui/styles.ts`, `StatusChip.tsx`, design.md, CLAUDE.md | – | 1 | done |
+| 4 | Shell: AppShell, Sidebar, TopBar, MobileNav, loading, error | components/layout, app | 3 | done |
+| 5 | Dashboard page/loading + JobsTable (CronSchedule ×2) | dashboard | 2,3 | done |
+| 6 | AddJobForm (Thai preset/hint), jobs/[id] page + loading | jobs | 2,3 | done |
+| 7 | Payments: PlanCard, PaymentsClient, AddPaymentModal, loading | payments | 3 | done |
+| 8 | Charts: BalanceChart (no gradient, HTML labels), PlanProgress | charts | 3 | done |
+| 9 | Final verification: tsc, lint, cron check, greps, build, headless /sign-in | – | 4–8 | done |
 
-## Review round 1 — 3 findings (all pre-existing, none in tasks 1-5)
-- [x] F1. sr-only on <table> doesn't collapse -> 798px page overflow (PlanProgress.tsx:95)
-- [x] F2. same + MonthlyBars tick labels overflow at 240 bars (MonthlyBars.tsx:102,89)
-- [x] F3. Dashboard "Paid to date" wraps mid-number at 320px (app/dashboard/page.tsx)
+Parallel: 2‖3, then 4‖5‖6‖7‖8.
 
-## Review round 2 — 2 findings, both fixed
-- [x] F4. MonthlyBars tick labels clipped mid-glyph at every width (own round-1 overflow-hidden was wrong model)
-- [x] F5. "Paid to date" over-stepped to text-xs (12px) across all phones; -> text-sm
-
-Final: overflow proof 24/24 route x width, negative control passed, build exit 0.
-Unverified: /sign-in (client-only Clerk render), safe-area insets (headless reports 0),
-AddPaymentModal + pagination past page 1 (script-stripped harness), real API data (mock used).
+Result: tsc/lint clean, cron self-check 56/56, build fails only on baseline /payments prerender timeout (sandbox cannot reach API). Review: no defects; 2 doc nits + "Last run" fixed.

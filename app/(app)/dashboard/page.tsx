@@ -4,6 +4,7 @@ import { JobsTable } from "@/components/dashboard/JobsTable";
 import { PlanProgress } from "@/components/charts/PlanProgress";
 import { BalanceChart } from "@/components/charts/BalanceChart";
 import { getJobs, getJobDetail } from "@/lib/api";
+import { btnPrimary, dangerCallout } from "@/components/ui/styles";
 import { fmt } from "@/lib/format";
 import type { Job, JobDetail } from "@/lib/types";
 
@@ -47,48 +48,38 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-[var(--space-md)]">
-        {/* Stat strip */}
-        <div className="grid grid-cols-2 gap-[var(--space-2xs)] lg:grid-cols-4">
-          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
-            <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
-              Total jobs
-            </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">
-              {jobs.length}
-            </p>
-          </div>
-          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
-            <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
-              Active
-            </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-accent)] tabular-nums">
-              {activeCount}
-            </p>
-          </div>
-          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
-            <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
-              Disabled
-            </p>
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">
-              {jobs.length - activeCount}
-            </p>
-          </div>
-          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-xs)]">
-            <p className="text-[length:var(--text-xs)] uppercase tracking-wide text-[var(--color-ink-2)]">
-              Paid to date
-            </p>
-            {/* ponytail: whitespace-nowrap keeps the number intact (it must never
-                split mid-digit); text-sm→sm:text-lg keeps it inside the 114px
-                mobile tile. Ceiling: comfortably fits up to ~8-digit baht totals
-                (e.g. ฿99,999,999.99) at 320px. If paidToDate regularly exceeds
-                ~99,999,999, step the base size down further or widen the tile
-                (e.g. col-span-2) instead of re-adding overflow-wrap here. */}
-            <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-sm)] sm:text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums whitespace-nowrap">
-              ฿{fmt(paidToDate)}
-            </p>
-          </div>
-        </div>
+      <h1 className="sr-only">Dashboard</h1>
 
+      {/* Stat strip: one hairline-divided container, not four cards */}
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-rule)] lg:grid-cols-4">
+        <div className="min-w-0 bg-[var(--color-paper-2)] p-[var(--space-xs)]">
+          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Total jobs</p>
+          <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">{jobs.length}</p>
+        </div>
+        <div className="min-w-0 bg-[var(--color-paper-2)] p-[var(--space-xs)]">
+          <p className="flex items-center gap-[var(--space-3xs)] text-[length:var(--text-sm)] text-[var(--color-ink-2)]">
+            <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-accent)]" />
+            Active
+          </p>
+          <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">{activeCount}</p>
+        </div>
+        <div className="min-w-0 bg-[var(--color-paper-2)] p-[var(--space-xs)]">
+          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Disabled</p>
+          <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums">{jobs.length - activeCount}</p>
+        </div>
+        <div className="min-w-0 bg-[var(--color-paper-2)] p-[var(--space-xs)]">
+          <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">Paid to date</p>
+          {/* ponytail: whitespace-nowrap keeps the number intact (it must never
+              split mid-digit); text-sm→sm:text-lg keeps it inside the 114px
+              mobile tile. Ceiling: comfortably fits up to ~8-digit baht totals
+              (e.g. ฿99,999,999.99) at 320px. If paidToDate regularly exceeds
+              ~99,999,999, step the base size down further or widen the tile
+              (e.g. col-span-2) instead of re-adding overflow-wrap here. */}
+          <p className="mt-[var(--space-3xs)] font-display text-[length:var(--text-sm)] sm:text-[length:var(--text-lg)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] tabular-nums whitespace-nowrap">
+            ฿{fmt(paidToDate)}
+          </p>
+        </div>
+      </div>
         {/* Payment progress — real plans only */}
         {withPlans.length > 0 && (
           <section className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
@@ -126,19 +117,21 @@ export default async function DashboardPage() {
         <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] overflow-hidden">
           <div className="px-[var(--space-xs)] py-[var(--space-2xs)] border-b border-[var(--color-rule)] flex items-center justify-between gap-[var(--space-2xs)]">
             <h2 className="font-display text-[length:var(--text-md)] font-semibold tracking-[-0.02em] text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
-              Scheduled Jobs
+              Scheduled jobs
             </h2>
             <Link
               href="/jobs/new"
-              className="inline-flex min-h-[44px] md:min-h-0 items-center justify-center gap-1.5 text-[length:var(--text-sm)] font-medium bg-[var(--color-accent)] text-[var(--color-accent-ink)] px-3 py-2 rounded-[10px] transition-[transform,background-color] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-accent)] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-[1px]"
+              className={btnPrimary}
             >
               <Plus className="w-3.5 h-3.5" />
-              Add Job
+              Add job
             </Link>
           </div>
           {error ? (
-            <div className="px-[var(--space-xs)] py-[var(--space-md)] text-center text-[length:var(--text-sm)] text-[var(--color-danger)]">
-              {error}
+            <div className="p-[var(--space-xs)]">
+              <p role="alert" className={dangerCallout}>
+                Couldn&apos;t load jobs: {error}
+              </p>
             </div>
           ) : (
             <JobsTable jobs={jobs} />

@@ -5,6 +5,11 @@
 /* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
  * pre-emit critique: P4 H5 E5 S4 R5 V4 */
 
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--color-track) transparent;
+}
+
 html, body {
   overflow-x: clip;
   background: var(--color-paper);
@@ -12,11 +17,23 @@ html, body {
   font-family: var(--font-body);
 }
 
+body {
+  caret-color: var(--color-accent);
+  -webkit-tap-highlight-color: transparent;
+}
+
+a { text-underline-offset: 0.2em; }
+
 h1, h2, h3 {
   font-family: var(--font-display);
   font-style: normal;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
+
+p, li, dd { text-wrap: pretty; }
+
+table, .font-mono { font-variant-numeric: tabular-nums; }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--color-focus);

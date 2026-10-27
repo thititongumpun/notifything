@@ -69,10 +69,10 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
       </div>
 
       {/* The "how long to 100%" numbers */}
-      <div className="mt-[var(--space-2xs)] flex flex-wrap items-baseline gap-x-[var(--space-xs)] gap-y-[var(--space-3xs)] font-mono tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
+      <div className="mt-[var(--space-2xs)] flex flex-wrap items-baseline gap-x-[var(--space-xs)] gap-y-[var(--space-3xs)] tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
         {complete ? (
           <span className="text-[var(--color-accent)]">
-            Complete — all {total} months paid
+            Complete: all {total} months paid
           </span>
         ) : (
           <>

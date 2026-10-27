@@ -29,27 +29,13 @@ export function Sidebar({ activePath }: { activePath: string }) {
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`relative flex items-center gap-[var(--space-xs)] px-[var(--space-xs)] min-h-[2.75rem] my-0.5 rounded-[var(--radius-input)] text-[length:var(--text-sm)] font-medium whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
+              className={`flex items-center gap-[var(--space-xs)] px-[var(--space-xs)] min-h-[2.75rem] my-0.5 rounded-[var(--radius-input)] text-[length:var(--text-sm)] font-medium whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
                 active
-                  ? "text-[var(--color-accent)]"
+                  ? "text-[var(--color-ink)] bg-[color-mix(in_oklab,var(--color-accent)_15%,transparent)]"
                   : "text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
               }`}
-              style={
-                active
-                  ? {
-                      background:
-                        "color-mix(in oklab, var(--color-accent) 15%, transparent)",
-                    }
-                  : undefined
-              }
             >
-              {active && (
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[var(--color-accent)]"
-                />
-              )}
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[var(--color-accent)]" : ""}`} />
               {label}
             </Link>
           );

@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 function PlanCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
+    <div className="@container overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
       {/* Plan header */}
       <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
         <Skeleton className="h-4 w-56" />
@@ -44,9 +44,7 @@ export default function PaymentsLoading() {
       {Array.from({ length: 2 }).map((_, g) => (
         <div key={g} className="flex min-w-0 flex-col gap-[var(--space-xs)]">
           <Skeleton className="h-7 w-40" />
-          <div className="grid grid-cols-1 gap-[var(--space-xs)] xl:[grid-template-columns:repeat(2,minmax(0,1fr))]">
-            <PlanCardSkeleton />
-          </div>
+          <PlanCardSkeleton />
         </div>
       ))}
     </div>

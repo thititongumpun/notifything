@@ -41,7 +41,7 @@ rings, one data-highlight per stat card. Never accent body text.
 - Scale: --text-xs 0.75 / --text-sm 0.875 / --text-md 1.125 / --text-lg 1.375.
 - Line-height: body 1.6; table cells 1.5; headings 1.2.
 - Table body text: minimum --text-sm (0.875rem). Never --text-xs for table
-  cell content — xs is reserved for labels and eyebrows only.
+  cell content — xs is reserved for short labels only (no eyebrows — see Impeccable pass).
 
 Amended 2026-09-02.
 
@@ -58,7 +58,7 @@ Amended 2026-09-02.
 
 Amended 2026-08-26.
 
-Amended 2026-09-02 (responsive tables in cards): tables and stat grids inside cards respond to the CARD's own width via Tailwind v4 container queries (`@container` root + `@min-[28rem]`/`@min-[30rem]` variants), not viewport breakpoints — PlanCard renders 2-up from md (234px cards at 768px) where a viewport-gated table would clip. Stacked cards render whenever the card is narrower than the table's min-content; amounts carry `overflow-wrap: anywhere` as the no-clip guard.
+Amended 2026-09-02 (responsive tables in cards): tables and stat grids inside cards respond to the CARD's own width via Tailwind v4 container queries (`@container` root + `@min-[28rem]`/`@min-[30rem]` variants), not viewport breakpoints — PlanCard renders 2-up from md (234px cards at 768px) where a viewport-gated table would clip. Stacked cards render whenever the card is narrower than the table's min-content; amounts carry `overflow-wrap: anywhere` as the no-clip guard. (Superseded 2026-10-27: PlanCard now switches at `@min-[44rem]`.)
 
 ## Data visualization (charts)
 - Colour semantics: accent = paid, --color-track = due/unpaid. No other hues
@@ -99,12 +99,12 @@ Pages reference `var(--space-*)`, never raw values.
 - Easings: `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`.
 - Durations: `--dur-short: 180ms` for hovers/presses; nothing longer.
 - Reveal pattern: none. App pages don't scroll-reveal.
-- Reduced-motion: opacity-only, ≤150ms.
+- Reduced-motion: colour/opacity transitions only, 150ms; animations collapse to a single frame.
 
 ## Microinteractions stance
 - Silent success — no celebratory toasts on save.
 - Optimistic update + Undo where applicable; confirm dialogs only for delete.
-- Hover: surface lift to --color-paper-3, 180ms. Active: translateY(1px).
+- Hover: colour only (CTA = --color-focus fill, secondary = --color-paper-3), 180ms, no lift. Active: translateY(1px).
 - Focus: instant 2px --color-focus ring, never animated.
 
 ## CTA voice
@@ -139,3 +139,12 @@ Amended 2026-09-02.
 
 ### tokens.css
 See `tokens.css` at project root — imported by `app/globals.css`.
+
+## Impeccable pass (2026-10-27)
+- Operate-mode refinement; behaviour, routes and data flow unchanged.
+- Inter is on Impeccable's overused-font list; kept as a deliberate exception because this file pins it.
+- Rules: no eyebrow/kicker text, no hero-metric template, no gradients, no coloured side-tab borders, no glows, no pulsing dot unless data is live, mono only for code/data, motion state-only at 150-250ms, reduced motion = colour/opacity only at 150ms, functional text >=12px, one h1 per page, sentence-case verb-first copy, skeleton geometry matches the page.
+- Single sources: `StatusChip` (components/ui/StatusChip.tsx) and class strings in components/ui/styles.ts (`btnPrimary`, `btnSecondary`, `backLink`, `dangerCallout`).
+- Cron rule: wherever a cron expression appears, render `CronSchedule` / `describeCron` from lib/cron.ts. Thai text with lang="th"; honest fallback "รูปแบบ cron กำหนดเอง"; no timezone shown because none is configured.
+- Chart labels are HTML text >=12px, not SVG text.
+- Stat strip is one hairline grid with sentence-case labels.
