@@ -1,16 +1,15 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { describeCron } from "@/lib/cron";
+import { describeCron, nextRun } from "@/lib/cron";
+import { fmtThaiDateTime } from "@/lib/format";
+import { DateLeaf } from "@/components/calendar/DateLeaf";
+import { CronSchedule } from "@/components/ui/CronSchedule";
 import { CRON_PRESETS } from "./presets";
-import { backLink, btnPrimary, btnSecondary, dangerCallout } from "@/components/ui/styles";
-
-const inputClass =
-  "w-full bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-[var(--radius-input)] px-3 min-h-[44px] py-2 text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)]";
+import { backLink, btnPrimary, btnSecondary, card, dangerCallout, input } from "@/components/ui/styles";
 
 const labelClass =
   "text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]";
@@ -30,6 +29,8 @@ export function AddJobForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const next = cron.trim() ? nextRun(cron.trim(), new Date()) : null;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -47,7 +48,7 @@ export function AddJobForm() {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(`เพิ่มงานไม่สำเร็จ: ${err instanceof Error ? err.message : "เกิดข้อผิดพลาด"}`);
     } finally {
       setLoading(false);
     }
@@ -57,16 +58,16 @@ export function AddJobForm() {
     <div className="flex flex-col gap-[var(--space-xs)] w-full">
       <Link href="/dashboard" className={backLink}>
         <ArrowLeft className="w-4 h-4" aria-hidden />
-        Back to dashboard
+        กลับ
       </Link>
 
-      <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] overflow-hidden">
+      <div className={`${card} overflow-hidden`}>
         <div className="px-[var(--space-sm)] py-[var(--space-xs)] border-b border-[var(--color-rule)] sm:px-[var(--space-md)] sm:py-[var(--space-sm)]">
           <h1 className="font-display text-[length:var(--text-md)] font-semibold leading-[var(--leading-tight)] tracking-[-0.02em] text-[var(--color-ink)]">
-            Add job
+            เพิ่มงาน
           </h1>
           <p className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] mt-[var(--space-3xs)]">
-            Create a new scheduled notification job.
+            สร้างการแจ้งเตือนตามกำหนดเวลา
           </p>
         </div>
 
@@ -74,7 +75,7 @@ export function AddJobForm() {
           {/* Name group */}
           <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
             <label className={labelClass} htmlFor="job-name">
-              Name <RequiredMark />
+              ชื่องาน <RequiredMark />
             </label>
             <input
               id="job-name"
@@ -82,8 +83,8 @@ export function AddJobForm() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. ค่างวดรถ"
-              className={inputClass}
+              placeholder="เช่น ค่างวดรถ"
+              className={input}
             />
           </div>
 
@@ -92,7 +93,7 @@ export function AddJobForm() {
           {/* Cron group */}
           <div className="flex flex-col gap-[var(--space-3xs)] py-[var(--space-2xs)]">
             <label className={labelClass} htmlFor="job-cron">
-              Cron expression <RequiredMark />
+              กำหนดเวลา (cron) <RequiredMark />
             </label>
             <input
               id="job-cron"
@@ -100,18 +101,26 @@ export function AddJobForm() {
               type="text"
               value={cron}
               onChange={(e) => setCron(e.target.value)}
-              placeholder="e.g. 0 12 5 * *"
+              placeholder="เช่น 0 12 5 * *"
               aria-describedby="job-cron-hint"
-              className={`${inputClass} font-mono`}
+              className={`${input} font-mono`}
             />
-            <p
-              id="job-cron-hint"
-              aria-live="polite"
-              lang="th"
-              className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] min-w-0 [overflow-wrap:anywhere]"
-            >
-              {cron.trim() ? describeCron(cron) : "รูปแบบ: นาที ชั่วโมง วันที่ เดือน วันในสัปดาห์"}
-            </p>
+            <div id="job-cron-hint" aria-live="polite" className="min-w-0">
+              {cron.trim() ? (
+                <CronSchedule cron={cron} />
+              ) : (
+                <p lang="th" className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+                  รูปแบบ: นาที ชั่วโมง วันที่ เดือน วันในสัปดาห์
+                </p>
+              )}
+            </div>
+            <div className="mt-[var(--space-3xs)] flex items-center gap-[var(--space-2xs)]">
+              <DateLeaf date={next} size="sm" />
+              <div className="min-w-0 text-[length:var(--text-sm)] leading-[var(--leading-body)]">
+                <div className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">รอบถัดไป</div>
+                <div className="text-[var(--color-ink)]">{next ? fmtThaiDateTime(next) : "—"}</div>
+              </div>
+            </div>
             {/* Presets */}
             <div className="flex flex-wrap gap-[var(--space-3xs)] mt-[var(--space-3xs)]">
               {CRON_PRESETS.map((value) => (
@@ -125,7 +134,6 @@ export function AddJobForm() {
                       : "border-[var(--color-rule)] text-[var(--color-ink-2)] hover:border-[var(--color-ink-2)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]"
                   }`}
                 >
-                  <span className="block font-mono tabular-nums text-[length:var(--text-sm)]">{value}</span>
                   <span lang="th" className="block text-[length:var(--text-xs)] leading-[var(--leading-body)]">
                     {describeCron(value)}
                   </span>
@@ -147,7 +155,7 @@ export function AddJobForm() {
               href="/dashboard"
               className={`${btnSecondary} w-full sm:w-auto`}
             >
-              Cancel
+              ยกเลิก
             </Link>
             <button
               type="submit"
@@ -155,7 +163,7 @@ export function AddJobForm() {
               className={`${btnPrimary} w-full sm:ml-auto sm:w-auto`}
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden />}
-              {loading ? "Creating…" : "Add job"}
+              {loading ? "กำลังเพิ่ม…" : "เพิ่มงาน"}
             </button>
           </div>
         </form>
