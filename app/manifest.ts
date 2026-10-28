@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Notification and payment tracking",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#16181d",
-    theme_color: "#16181d",
+    background_color: "#fbfaf7",
+    theme_color: "#fbfaf7",
     orientation: "portrait",
     id: "/dashboard",
     icons: [

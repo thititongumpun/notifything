@@ -2,11 +2,9 @@
 @import "@heroui/styles";
 @import "../tokens.css";
 
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
- * pre-emit critique: P4 H5 E5 S4 R5 V4 */
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
   scrollbar-color: var(--color-track) transparent;
 }
 

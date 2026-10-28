@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_Thai, JetBrains_Mono } from "next/font/google";
+import { Kanit, Anuphan, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const kanit = Kanit({
+  variable: "--font-kanit",
+  weight: ["500", "600", "700"],
+  subsets: ["thai", "latin"],
 });
 
-const notoThai = Noto_Sans_Thai({
-  variable: "--font-noto-thai",
-  subsets: ["latin", "thai"],
+const anuphan = Anuphan({
+  variable: "--font-anuphan",
+  weight: ["400", "500", "600"],
+  subsets: ["thai", "latin"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -24,13 +26,13 @@ export const metadata: Metadata = {
   description: "Notification and payment tracking",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Notifything",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16181d",
+  themeColor: "#fbfaf7",
   // ponytail: cover + top/bottom insets only. Ceiling: landscape notch (left/right
   // insets) is unhandled; upgrade = px-[env(safe-area-inset-left)] on TopBar + MobileNav.
   viewportFit: "cover",
@@ -45,10 +47,10 @@ export default function RootLayout({
     <ClerkProvider
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       appearance={{
-        variables: { colorBackground: "#16181d", colorText: "#f2f3f5", colorPrimary: "#7c7cf4" },
+        variables: { colorBackground: "#ffffff", colorText: "#13161b", colorPrimary: "#13161b" },
       }}
     >
-      <html lang="en" className={`dark ${inter.variable} ${notoThai.variable} ${jetbrainsMono.variable}`}>
+      <html lang="th" className={`${kanit.variable} ${anuphan.variable} ${jetbrainsMono.variable}`}>
         <head>
           <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         </head>
