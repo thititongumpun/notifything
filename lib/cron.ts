@@ -128,3 +128,70 @@ export function describeCron(expr: string): string {
   if (t === null || dp === null || mp === null) return CRON_FALLBACK;
   return `ทำงาน${dp ? `${dp} ` : ""}${t}${mp}`;
 }
+
+// ---- next run / run days (crons fire in Asia/Bangkok, UTC+7, no DST) ----
+const BKK_MS = 7 * 3600_000;
+
+function toSet(f: F, min: number, max: number, mod = 0): Set<number> {
+  const out = new Set<number>();
+  for (let i = min; i <= max; i++) {
+    const ok =
+      f.k === "any" ||
+      (f.k === "step" && i % f.n === 0) ||
+      (f.k === "list" && f.v.some((x) => (mod ? x % mod : x) === i)) ||
+      (f.k === "range" && i >= f.a && i <= f.b);
+    if (ok) out.add(i);
+  }
+  return out;
+}
+
+// null exactly when describeCron falls back, so the two can never disagree about what is understood.
+function parseSets(expr: string) {
+  if (describeCron(expr) === CRON_FALLBACK) return null;
+  let s = expr.trim();
+  if (s.startsWith("@")) s = MACROS[s.toLowerCase()];
+  const p = s.split(/\s+/);
+  const f = [
+    field(p[0], 0, 59, { cycle: 60 }),
+    field(p[1], 0, 23, { cycle: 24, range: true }),
+    field(p[2], 1, 31, { range: true }),
+    field(p[3], 1, 12, { range: true, names: MON_NAMES, base: 1 }),
+    field(p[4], 0, 7, { range: true, names: DOW_NAMES, base: 0 }),
+  ] as F[];
+  return {
+    min: [...toSet(f[0], 0, 59)],
+    hour: [...toSet(f[1], 0, 23)],
+    dom: toSet(f[2], 1, 31),
+    mon: toSet(f[3], 1, 12),
+    dow: toSet(f[4], 0, 6, 7),
+  };
+}
+
+type Sets = NonNullable<ReturnType<typeof parseSets>>;
+// u = a Date whose UTC fields hold Bangkok wall time.
+const dayMatches = (c: Sets, u: Date) =>
+  c.mon.has(u.getUTCMonth() + 1) && c.dom.has(u.getUTCDate()) && c.dow.has(u.getUTCDay());
+
+export function nextRun(expr: string, from: Date): Date | null {
+  const c = parseSets(expr);
+  if (!c) return null;
+  const startMs = Math.floor((from.getTime() + BKK_MS) / 60_000) * 60_000 + 60_000;
+  const day0 = Math.floor(startMs / 86_400_000) * 86_400_000;
+  for (let i = 0; i < 366 * 5; i++) {
+    const dayMs = day0 + i * 86_400_000;
+    if (!dayMatches(c, new Date(dayMs))) continue;
+    for (const h of c.hour)
+      for (const m of c.min) {
+        const t = dayMs + (h * 60 + m) * 60_000;
+        if (t >= startMs) return new Date(t - BKK_MS);
+      }
+  }
+  return null; // e.g. Feb 31: never fires
+}
+
+export function runDaysInMonth(expr: string, year: number, month: number): number[] | null {
+  const c = parseSets(expr);
+  if (!c) return null;
+  const n = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return Array.from({ length: n }, (_, i) => i + 1).filter((d) => dayMatches(c, new Date(Date.UTC(year, month - 1, d))));
+}

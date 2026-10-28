@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { CRON_FALLBACK as F, describeCron } from "./cron";
+import { CRON_FALLBACK as F, describeCron, nextRun, runDaysInMonth } from "./cron";
 
 // Run: npx tsx lib/cron.test.ts  (exits non-zero on any mismatch)
 const cases: [string, string][] = [
@@ -69,3 +69,27 @@ for (const [input, want] of cases) {
   ok++;
 }
 console.log(`cron: ${ok}/${cases.length} passed`);
+
+const at = (s: string) => new Date(s);
+const iso = (d: Date | null) => d?.toISOString() ?? null;
+assert.equal(iso(nextRun("0 12 5 * *", at("2026-10-29T07:00:00Z"))), "2026-11-05T05:00:00.000Z");
+assert.equal(iso(nextRun("0 12 5 * *", at("2026-11-05T05:00:00Z"))), "2026-12-05T05:00:00.000Z"); // strictly after
+assert.equal(iso(nextRun("0 12 31 * *", at("2026-11-01T00:00:00Z"))), "2026-12-31T05:00:00.000Z"); // Nov has 30 days
+assert.equal(iso(nextRun("0 9 * * 1-5", at("2026-10-30T03:00:00Z"))), "2026-11-02T02:00:00.000Z"); // Fri 10:00 -> Mon 09:00
+assert.equal(iso(nextRun("*/15 * * * *", at("2026-10-29T07:07:00Z"))), "2026-10-29T07:15:00.000Z");
+assert.equal(iso(nextRun("0 0 1 1,7 *", at("2026-10-29T00:00:00Z"))), "2026-12-31T17:00:00.000Z");
+assert.equal(iso(nextRun("@monthly", at("2026-10-29T00:00:00Z"))), "2026-10-31T17:00:00.000Z");
+assert.equal(nextRun("0 12 L * *", at("2026-10-29T00:00:00Z")), null);
+assert.deepEqual(runDaysInMonth("0 12 5 * *", 2026, 11), [5]);
+assert.deepEqual(runDaysInMonth("0 9 * * 1-5", 2026, 11), [2,3,4,5,6,9,10,11,12,13,16,17,18,19,20,23,24,25,26,27,30]);
+assert.deepEqual(runDaysInMonth("0 12 31 * *", 2026, 11), []);
+assert.deepEqual(runDaysInMonth("*/5 * * * *", 2026, 2), Array.from({ length: 28 }, (_, i) => i + 1));
+assert.deepEqual(runDaysInMonth("0 0 1 1,7 *", 2026, 11), []);
+assert.equal(runDaysInMonth("0 12 L * *", 2026, 11), null);
+// invariant: nextRun/runDaysInMonth are null exactly when describeCron falls back
+for (const [e] of cases) {
+  const fb = describeCron(e) === F;
+  assert.equal(nextRun(e, at("2026-10-29T00:00:00Z")) === null, fb, `nextRun null <=> fallback: ${e}`);
+  assert.equal(runDaysInMonth(e, 2026, 11) === null, fb, `runDays null <=> fallback: ${e}`);
+}
+console.log("cron nextRun/runDays: passed");
