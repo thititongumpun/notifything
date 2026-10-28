@@ -1,9 +1,9 @@
 "use client";
 
 import { Avatar, Dropdown, Label } from "@heroui/react";
-import { Bell } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { TodayDate } from "./TodayDate";
 
 export function TopBar({ title }: { title: string }) {
   const { user } = useClerkAuth();
@@ -15,19 +15,21 @@ export function TopBar({ title }: { title: string }) {
       : user.fullName?.[0] ?? "U";
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] min-h-14 pt-[env(safe-area-inset-top)] px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-paper)_85%,transparent)] backdrop-blur-md">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] min-h-14 pt-[env(safe-area-inset-top)] px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[var(--color-paper)]">
       {/* Mobile: wordmark (sidebar hidden below md); Desktop: page title */}
       <div className="flex items-center gap-[var(--space-2xs)] min-w-0 md:min-w-0">
-        <span className="flex md:hidden items-center gap-[var(--space-2xs)] shrink-0">
-          <Bell className="w-5 h-5 text-[var(--color-accent)]" />
+        <span className="flex md:hidden items-baseline gap-[var(--space-2xs)] min-w-0">
           <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] whitespace-nowrap">
             Notifything
           </span>
+          <TodayDate />
         </span>
         <p className="hidden md:block font-display text-[length:var(--text-title)] leading-[var(--leading-tight)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
           {title}
         </p>
       </div>
+      <div className="flex items-center gap-[var(--space-2xs)]">
+      <span className="hidden md:inline"><TodayDate /></span>
       <Dropdown>
         <Dropdown.Trigger className="min-h-11 min-w-11 grid place-items-center rounded-full">
           <Avatar size="sm" color="accent" className="cursor-pointer">
@@ -42,15 +44,13 @@ export function TopBar({ title }: { title: string }) {
                 <p className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{user.emailAddress}</p>
               </div>
             </Dropdown.Item>
-            <Dropdown.Item id="settings" textValue="Settings">
-              <Label>Settings</Label>
-            </Dropdown.Item>
-            <Dropdown.Item id="logout" textValue="Log out">
-              <Label className="text-[var(--color-danger)]">Log out</Label>
+            <Dropdown.Item id="logout" textValue="ออกจากระบบ">
+              <Label className="text-[var(--color-danger)]">ออกจากระบบ</Label>
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>
+      </div>
     </header>
   );
 }

@@ -1,41 +1,32 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 import Link from "next/link";
-import { Bell, CreditCard, LayoutDashboard } from "lucide-react";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/payments", label: "Payments", icon: CreditCard },
-];
+import { isActive, navItems } from "./nav";
 
 export function Sidebar({ activePath }: { activePath: string }) {
   return (
-    <aside
-      className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 bg-[var(--color-paper-2)] border-r border-[var(--color-rule)]"
-    >
-      <div className="flex items-center gap-2 px-5 py-5 min-w-0">
-        <Bell className="w-5 h-5 shrink-0 text-[var(--color-accent)]" />
-        <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] whitespace-nowrap">
+    <aside className="hidden md:flex flex-col w-56 shrink-0 h-screen sticky top-0 bg-[var(--color-paper-2)] border-r border-[var(--color-rule)]">
+      <div className="px-5 py-5">
+        <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)]">
           Notifything
         </span>
       </div>
       <nav
         className="flex flex-col gap-[var(--space-3xs)] p-[var(--space-xs)] flex-1 border-t border-[var(--color-rule)]"
-        aria-label="Primary"
+        aria-label="เมนูหลัก"
       >
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active = activePath === href || activePath.startsWith(href + "/");
+          const active = isActive(activePath, href);
           return (
             <Link
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-[var(--space-xs)] px-[var(--space-xs)] min-h-[2.75rem] my-0.5 rounded-[var(--radius-input)] text-[length:var(--text-sm)] font-medium whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
+              className={`flex items-center gap-[var(--space-xs)] px-[var(--space-xs)] min-h-[2.75rem] rounded-[var(--radius-input)] text-[length:var(--text-sm)] whitespace-nowrap transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] ${
                 active
-                  ? "text-[var(--color-ink)] bg-[color-mix(in_oklab,var(--color-accent)_15%,transparent)]"
-                  : "text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
+                  ? "font-bold text-[var(--color-ink)] bg-[var(--color-paper-3)]"
+                  : "font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[var(--color-accent)]" : ""}`} />
+              <Icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.75 : 1.75} />
               {label}
             </Link>
           );

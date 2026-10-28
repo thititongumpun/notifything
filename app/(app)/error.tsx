@@ -13,17 +13,17 @@ export default function AppError({
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-[var(--space-xs)] text-center">
       <div>
         <p className="text-[length:var(--text-sm)] font-medium leading-[var(--leading-body)] text-[var(--color-danger)]">
-          Something went wrong
+          เกิดข้อผิดพลาด
         </p>
         <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          Couldn&apos;t load this page. {error.message}
+          โหลดหน้านี้ไม่สำเร็จ {error.message}
         </p>
       </div>
       <button
         onClick={reset}
         className={btnPrimary}
       >
-        Try again
+        ลองอีกครั้ง
       </button>
     </div>
   );
