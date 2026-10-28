@@ -16,7 +16,7 @@ export function NextDueHero({ urgent, fallback, now }: { urgent: Urgent | null; 
     const days = daysUntil(due, now);
     const t = planTotals(plan);
     return (
-      <section aria-label="ครบกำหนดถัดไป" className={`${card} min-w-0 border-2 border-[var(--color-ink)] p-[var(--space-sm)]`}>
+      <section aria-label="ครบกำหนดถัดไป" className="min-w-0 rounded-[var(--radius-card)] border-2 border-[var(--color-ink)] bg-[var(--color-paper-2)] p-[var(--space-sm)]">
         <p className={eyebrowCls} style={{ color: days < 0 ? "var(--color-danger)" : "var(--color-ink-2)" }}>
           ครบกำหนดถัดไป · {relativeDayLabel(days)}
         </p>
@@ -60,7 +60,7 @@ export function NextDueHero({ urgent, fallback, now }: { urgent: Urgent | null; 
     const { job, at } = fallback;
     const days = daysUntil(at, now);
     return (
-      <section aria-label="ครบกำหนดถัดไป" className={`${card} min-w-0 border-2 border-[var(--color-ink)] p-[var(--space-sm)]`}>
+      <section aria-label="ครบกำหนดถัดไป" className="min-w-0 rounded-[var(--radius-card)] border-2 border-[var(--color-ink)] bg-[var(--color-paper-2)] p-[var(--space-sm)]">
         <p className={`${eyebrowCls} text-[var(--color-ink-2)]`}>งานรอบถัดไป · {relativeDayLabel(days)}</p>
         <div className="mt-[var(--space-xs)] flex flex-wrap items-start gap-[var(--space-sm)]">
           <DateLeaf date={at} size="lg" />

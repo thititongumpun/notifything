@@ -52,7 +52,8 @@ export default async function DashboardPage() {
     if (ds.length) shown.add(j.id);
     for (const d of ds) (days[d] ??= []).push(j.name);
   }
-  const dueP = urgent ? bkkParts(new Date(urgent.next.dueDate)) : null;
+  const heroDue = urgent ? new Date(urgent.next.dueDate) : (fallback?.at ?? null);
+  const dueP = heroDue ? bkkParts(heroDue) : null;
   const dueDay = dueP && dueP.year === today.year && dueP.month === today.month ? dueP.day : null;
 
   // Money across all plans

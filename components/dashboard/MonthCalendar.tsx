@@ -49,7 +49,7 @@ export function MonthCalendar({
                 {names.slice(0, 3).map((_, i) => (
                   <i key={i} className="size-[5px] rounded-full" style={{ background: `var(--day-${wd})` }} />
                 ))}
-                {names.length > 3 ? <b className="text-[10px] leading-none text-[var(--color-ink-2)]">+</b> : null}
+                {names.length > 3 ? <b className="text-[length:var(--text-xs)] leading-none text-[var(--color-ink-2)]">+</b> : null}
               </span>
             </div>
           );
