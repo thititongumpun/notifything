@@ -9,7 +9,7 @@ export default async function PaymentsPage() {
   try {
     jobs = await getJobs();
   } catch (e) {
-    listError = e instanceof Error ? e.message : "Failed to load jobs";
+    listError = e instanceof Error ? e.message : "โหลดรายการงานไม่สำเร็จ";
   }
 
   // Per-job isolation: one failed detail-fetch becomes an inline error card,
@@ -23,7 +23,7 @@ export default async function PaymentsPage() {
           id: job.id,
           name: job.name,
           detail: null,
-          error: e instanceof Error ? e.message : `Failed to load ${job.name}`,
+          error: e instanceof Error ? e.message : `โหลด ${job.name} ไม่สำเร็จ`,
         };
       }
     }),

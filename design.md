@@ -1,150 +1,49 @@
 # Design — Notifything
 
-A locked design system for this app. Every page redesign reads this file before
-emitting code. Do not regenerate per page — extend or amend this file when the
-system needs to grow.
+Locked design system, derived from the shipped code. Light only, Thai-first: a
+Thai wall calendar plus bank-passbook rows. Extend this file when the system grows.
 
-## Genre
-modern-minimal — utilitarian dark app for tracking scheduled jobs and payments.
+## Tokens (`tokens.css`, imported by `app/globals.css`)
+- Surfaces: `--color-paper` (bg, warm off-white) / `-paper-2` (cards, white) / `-paper-3` (inputs, hover).
+- Text: `--color-ink` (primary, also the accent), `--color-ink-2` (secondary, 7:1 on paper).
+- Lines: `--color-rule` (hairlines), `--color-leaf-edge` (date-leaf border), `--color-track` (unpaid / empty).
+- Accent = ink. Primary button: ink fill, white text (`--color-accent-ink`), radius 8px. Hover lightens to ink-2.
+- `--color-danger` / `--color-sunday` (red) for overdue and Sunday header only. `--color-focus` = ink, 2px outline, offset 2px.
+- Spacing `--space-3xs…3xl` (4-pt named); text `--text-xs 12 / sm 14 / md 18 / title 20 / lg 22 / xl 28 px`; leading body 1.6, table 1.5, tight 1.2.
+- Radii: card 12, input 8, leaf 6, pill 999. Motion: `--ease-out`, `--dur-short` 180ms; reduced-motion = colour/opacity only, 150ms.
+- No gradients, glow, backdrop-blur, or italics.
 
-## Macrostructure family
-- App pages: **Workbench** — persistent side rail (desktop) + bottom tab bar
-  (mobile), content column max-width 1200px, stat strip, dense tables/cards.
-- Pages within the family vary only in component archetypes (stat cards vs
-  form panels vs detail stacks). No marketing pages exist yet.
+## Weekday colours
+`--day-0…--day-6` (Sun..Sat: red, yellow, pink, green, orange, blue, purple) with paired `--day-ink-N` text colour.
+**Rule: weekday colours appear only on date marks** (DateLeaf band, mini-leaf strip, calendar due-day dots). Never on buttons, headings, nav or status. Colour never stands alone: the weekday name/initial always accompanies it.
 
-## Theme (custom, always-dark)
-```css
---color-paper:      oklch(17% 0.012 260);  /* app background */
---color-paper-2:    oklch(21% 0.014 260);  /* raised surfaces: cards, rail */
---color-paper-3:    oklch(25% 0.015 260);  /* hover surfaces, inputs */
---color-ink:        oklch(96% 0.005 260);  /* primary text */
---color-ink-2:      oklch(78% 0.012 260);  /* secondary text */
---color-rule:       oklch(30% 0.015 260);  /* hairlines, borders */
---color-accent:     oklch(68% 0.17 275);   /* indigo — actions, active nav */
---color-accent-ink: oklch(15% 0.03 275);   /* text on accent fill */
---color-focus:      oklch(75% 0.15 275);
-```
-Accent placement: ≤ 5% of viewport — primary CTA, active nav marker, focus
-rings, one data-highlight per stat card. Never accent body text.
+## Type roles (`app/layout.tsx`, `next/font`, registered in `@theme inline`)
+- Display `--font-display`: Kanit 500/600/700 - h1-h3, leaf numerals, wordmark. Tracking -0.02em, `text-wrap: balance`.
+- Body `--font-body`: Anuphan 400/500/600 - all UI text. Thai + Latin subsets.
+- Mono `--font-mono`: JetBrains Mono - cron literals, IDs, amounts, endpoints; `tabular-nums`.
+- Body >=14px, meta >=12px, nothing functional below 12px. One `h1` per page. Never mix display and mono on one element.
 
-## Typography
-- Display: Inter, weight 600, roman (no italics on headings).
-- Body: Inter, weight 400.
-- Mono: JetBrains Mono, weight 400 — cron expressions, IDs, amounts.
-- Fallback chain: `var(--font-inter), var(--font-noto-thai), system-ui` —
-  Noto Sans Thai guarantees ฿ and Thai text render consistently; the mono
-  chain carries the same Noto fallback for the same reason.
-- Font utilities are registered via `@theme inline` in `app/globals.css`
-  (Tailwind v4 has no tailwind.config).
-- Display tracking: -0.02em. Page title = 1.25rem (app chrome, not landing hero).
-- Scale: --text-xs 0.75 / --text-sm 0.875 / --text-md 1.125 / --text-lg 1.375.
-- Line-height: body 1.6; table cells 1.5; headings 1.2.
-- Table body text: minimum --text-sm (0.875rem). Never --text-xs for table
-  cell content — xs is reserved for short labels only (no eyebrows — see Impeccable pass).
+## Language and dates
+- All UI copy is Thai. Kept literal: "Notifything", cron strings, IDs, amounts (`฿` + `fmt()`).
+- All dates go through `lib/format.ts`: `Asia/Bangkok`, Buddhist-era years. `fmtThaiDate` ("5 พ.ย. 2569"), `fmtThaiDateTime`, `fmtThaiMonthYear`, `fmtPassbookDate` (dd/mm/BE-yy), `relativeDayLabel` (วันนี้ / พรุ่งนี้ / อีก N วัน / เลยกำหนด N วัน). Day maths uses `bkkParts` / `daysUntil` so 00:05 Bangkok is that Bangkok day. No `en-US` display formatting.
+- Honest fallback: a cron `describeCron` cannot read shows "รูปแบบ cron กำหนดเอง", its leaf is neutral with "—", the calendar omits it and says how many were omitted; `nextRun`/`runDaysInMonth` return `null`; nothing throws. Never guess a date.
+- Every cron shown goes through `components/ui/CronSchedule.tsx` (literal in mono + Thai description). No timezone label (none configured).
 
-Amended 2026-09-02.
+## Components
+- **DateLeaf** (`calendar/DateLeaf.tsx`): `lg` 118px tear-off leaf (weekday-colour band with two punch dots, Thai weekday, 76px day numeral, month-year in BE); `sm` 34px strip leaf for lists. `role="img"` with a full Thai aria-label; null date = neutral track band and "—".
+- **Passbook rows** (`payments/PlanCard.tsx`): date (`fmtPassbookDate`) / item / amount / running "Balance After" ledger; plan header shows installment size and remaining; unpaid rows are marked "ครบกำหนด". Responds to card width via container queries (`@container`, `@min-[44rem]`), stacking below; amounts use `overflow-wrap:anywhere`. `charts/PlanProgress` + `charts/BalanceChart` give Thai "how long to 100%" and the remaining-balance burn-down (inline SVG, solid = recorded, dashed = projected); chart labels are HTML text, and each chart has an sr-only table.
+- **MonthCalendar** (`dashboard/MonthCalendar.tsx`): Sun-first month grid, Sunday header in `--color-sunday`, due days get weekday-colour dots, today underlined/outlined; `+` marks overflow; footnote counts unreadable crons.
+- **NextDueHero** (`dashboard/NextDueHero.tsx`): the single next installment, 2px ink border, large leaf, job link, installment n / total, cron, and a record-payment button; falls back to the next cron run when no plan is due. Overdue text uses `--color-danger`.
+- **JobEditor** (`jobs/JobEditor.tsx`): edit name / cron (presets in `presets.ts`) / enabled on job detail, via `PATCH /api/jobs/[id]` proxy. Save disabled when unchanged or name is blank; errors in `dangerCallout`.
+- **Shell** (`layout/`): `AppShell` = desktop `Sidebar` + `TopBar` (Thai page title, today's date) + mobile `MobileNav` tab bar (หน้าหลัก / การชำระ / เพิ่มงาน). Content max 1100px. Top bar and tab bar use `env(safe-area-inset-*)`.
+- **Shared styles** (`ui/styles.ts`): `btnPrimary`, `btnSecondary`, `backLink`, `dangerCallout`, `card`, `input`; `StatusChip` is the only status mark (dot + Thai text).
 
-## Data display (tables)
-- Row padding: --space-2xs vertical / --space-xs horizontal minimum.
-- Header: --text-xs, uppercase, `tracking-wide`, ink-2, bottom rule.
-- Row hover: background --color-paper-3, transition --dur-short.
-- Hairline dividers: 1px --color-rule between rows; `last:border-b-0`.
-- Amounts, dates, and IDs: --font-mono with `font-variant-numeric: tabular-nums`.
-- Status: dot-chip — accent dot for enabled/paid, rule dot for off.
-- Mobile (<768px): collapse to stacked definition-list cards; never
-  horizontal scroll.
-- Never combine `font-display` and `font-mono` on the same element.
+## Interaction
+- Silent success, no toasts. Hover = colour only; active = translateY(1px); focus ring instant.
+- Touch targets >=44px. Card actions sit under a 1px rule.
+- Skeletons (`loading.tsx`) match page geometry.
 
-Amended 2026-08-26.
-
-Amended 2026-09-02 (responsive tables in cards): tables and stat grids inside cards respond to the CARD's own width via Tailwind v4 container queries (`@container` root + `@min-[28rem]`/`@min-[30rem]` variants), not viewport breakpoints — PlanCard renders 2-up from md (234px cards at 768px) where a viewport-gated table would clip. Stacked cards render whenever the card is narrower than the table's min-content; amounts carry `overflow-wrap: anywhere` as the no-clip guard. (Superseded 2026-10-27: PlanCard now switches at `@min-[44rem]`.)
-
-## Data visualization (charts)
-- Colour semantics: accent = paid, --color-track = due/unpaid. No other hues
-  in charts. --color-rule is a hairline stroke only — it must never FILL a
-  chart area (it is near-invisible against card surfaces; that is the bug this
-  amendment fixes).
-- No gradients, no 3D, no glow — flat fills and hairline strokes only.
-- Tick labels: --font-mono with `font-variant-numeric: tabular-nums`.
-- Gridlines: 1px --color-rule hairlines, horizontal only.
-- Height: 120–160px — charts are instruments, not heroes.
-- Accessibility: every chart ships an sr-only data table carrying the same
-  values (screen readers get the numbers, not the bars).
-- Mobile (<768px): bars compress, labels thin out (drop non-essential ticks);
-  never horizontal scroll.
-- Implementation: div-bar rows (flex + token colours) preferred over chart
-  libraries.
-- Progress displays must answer "how far to 100%": percentage, paid-of-total
-  months, remaining amount, and projected finish (last unpaid due date) —
-  a bar alone doesn't say how long is left.
-
-Amended 2026-09-02 (progress legibility: visible --color-track for unpaid,
-progress charts must state months/amount remaining + finish).
-
-Amended 2026-09-02 (tick thinning): bar-chart tick/value labels thin to at most 6 labelled columns by count (`tickStep = ceil(n/6)`); label-row gaps must match bar-row gaps (`gap-px` below sm) so ticks point at their bars.
-
-## Card action rows
-- Anchored by a 1px border-top rule in --color-rule.
-- Per card: secondary actions plus a single primary verb.
-- Touch targets ≥44px in both dimensions.
-
-Amended 2026-09-02.
-
-## Spacing
-4-point named scale in `tokens.css` (`--space-3xs` … `--space-3xl`).
-Pages reference `var(--space-*)`, never raw values.
-
-## Motion
-- Easings: `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`.
-- Durations: `--dur-short: 180ms` for hovers/presses; nothing longer.
-- Reveal pattern: none. App pages don't scroll-reveal.
-- Reduced-motion: colour/opacity transitions only, 150ms; animations collapse to a single frame.
-
-## Microinteractions stance
-- Silent success — no celebratory toasts on save.
-- Optimistic update + Undo where applicable; confirm dialogs only for delete.
-- Hover: colour only (CTA = --color-focus fill, secondary = --color-paper-3), 180ms, no lift. Active: translateY(1px).
-- Focus: instant 2px --color-focus ring, never animated.
-
-## CTA voice
-- Primary: accent fill, radius 10px, Inter 500, verb-first copy ("Add job").
-- Secondary: 1px rule border, paper-2 fill, ink text.
-- Destructive: oklch(62% 0.19 25) red, outline style only.
-
-## PWA / responsive floor (non-negotiable)
-- Verified at 320 / 375 / 414 / 768 / 1024 / 1440.
-- Mobile (<768px): bottom tab bar replaces the drawer; `env(safe-area-inset-bottom)`
-  padding on the tab bar; top bar stays ≤56px; touch targets ≥44px.
-- No horizontal scroll; `overflow-x: clip` on html and body.
-- Grid tracks with cards/images use `minmax(0, 1fr)`.
-- Display headers: `overflow-wrap: anywhere; min-width: 0`.
-- Tables collapse to stacked cards on mobile (no horizontal scroll).
-- Manifest theme_color/background_color match --color-paper.
-
-## Per-page allowances
-- App pages: no enrichment — function carries the page. Tier-A at most: a
-  hairline-keyed stat strip or a thin progress bar in payment cards.
-
-## What pages MUST share
-- The wordmark (bell glyph + "Notifything", Inter 600).
-- Accent colour and its placement discipline.
-- Inter 400/600 + JetBrains Mono pairing (fallback chain per Typography).
-- CTA voice (radius 10px, verb-first).
-- Surface hierarchy: paper → paper-2 (cards) → paper-3 (hover/input).
-
-Amended 2026-09-02.
-
-## Exports
-
-### tokens.css
-See `tokens.css` at project root — imported by `app/globals.css`.
-
-## Impeccable pass (2026-10-27)
-- Operate-mode refinement; behaviour, routes and data flow unchanged.
-- Inter is on Impeccable's overused-font list; kept as a deliberate exception because this file pins it.
-- Rules: no eyebrow/kicker text, no hero-metric template, no gradients, no coloured side-tab borders, no glows, no pulsing dot unless data is live, mono only for code/data, motion state-only at 150-250ms, reduced motion = colour/opacity only at 150ms, functional text >=12px, one h1 per page, sentence-case verb-first copy, skeleton geometry matches the page.
-- Single sources: `StatusChip` (components/ui/StatusChip.tsx) and class strings in components/ui/styles.ts (`btnPrimary`, `btnSecondary`, `backLink`, `dangerCallout`).
-- Cron rule: wherever a cron expression appears, render `CronSchedule` / `describeCron` from lib/cron.ts. Thai text with lang="th"; honest fallback "รูปแบบ cron กำหนดเอง"; no timezone shown because none is configured.
-- Chart labels are HTML text >=12px, not SVG text.
-- Stat strip is one hairline grid with sentence-case labels.
+## Responsive floor (non-negotiable)
+- Verified at 320 / 375 / 414 / 768 / 1024 / 1440 with no horizontal scroll (`overflow-x: clip` on html/body).
+- Grid tracks use `minmax(0, 1fr)`; long names get `overflow-wrap:anywhere; min-width:0` and wrap inside leaves, rows and cards without truncating amounts.
+- <768px: bottom tab bar replaces the sidebar; tables become stacked rows. Manifest `theme_color` / `background_color` = `#fbfaf7` (paper).

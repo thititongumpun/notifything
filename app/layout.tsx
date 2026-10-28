@@ -23,7 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Notifything",
-  description: "Notification and payment tracking",
+  description: "แจ้งเตือนงานและติดตามการชำระเงิน",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

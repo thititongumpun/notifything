@@ -97,7 +97,7 @@ export default async function JobDetailPage({ params }: Props) {
             </div>
             {pushEndpoint && (
               <div className="col-span-full min-w-0">
-                <dt className={labelClass}>Endpoint</dt>
+                <dt className={labelClass}>ปลายทางแจ้งเตือน (endpoint)</dt>
                 <dd className="mt-[var(--space-3xs)] min-w-0 font-mono text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] [overflow-wrap:anywhere]">{pushEndpoint}</dd>
               </div>
             )}

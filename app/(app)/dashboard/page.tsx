@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   try {
     jobs = await getJobs();
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load jobs";
+    error = e instanceof Error ? e.message : "โหลดรายการงานไม่สำเร็จ";
   }
 
   // Failed detail fetches are skipped, never crash the page.

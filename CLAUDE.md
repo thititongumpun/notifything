@@ -24,13 +24,14 @@ The base URL is configured via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults t
 - `GET /jobs/:id` — job detail with payment plans and subscriptions
 - `POST /jobs/addjob` — create a job
 - `POST /payments` — record a payment
+- `PATCH /jobs/:id` — edit name/cron/enabled
 
 The API returns **200 with an empty body** for unknown job ids — treat an unparseable/missing body as not-found (see `app/(app)/jobs/[id]/page.tsx`).
 
 ### Data fetching & caching
 
 - **Reads** go through `lib/api.ts` (`getJobs`, `getJobDetail`) with `next: { revalidate: 60, tags: ["jobs"] }` — pages are served from cache and revalidated in the background.
-- **Writes** never call the backend directly from the browser. They POST to same-origin route handlers (`app/api/payments/route.ts`, `app/api/jobs/addjob/route.ts`) that forward to the backend and call `revalidateTag("jobs", "max")`, so `router.refresh()` immediately shows fresh data. Any new mutation endpoint should follow this proxy + revalidate pattern.
+- **Writes** never call the backend directly from the browser. They POST to same-origin route handlers (`app/api/payments/route.ts`, `app/api/jobs/addjob/route.ts`, `app/api/jobs/[id]/route.ts` for `PATCH`, validated by `lib/jobPatch.ts`) that forward to the backend and call `revalidateTag("jobs", "max")`, so `router.refresh()` immediately shows fresh data. Any new mutation endpoint should follow this proxy + revalidate pattern.
 
 ### App Structure
 
@@ -42,22 +43,27 @@ The API returns **200 with an empty body** for unknown job ids — treat an unpa
 
 ### Key Pages
 
-- `/dashboard` — stat strip, payment progress (per-plan charts), jobs table
-- `/jobs/new` — add job form with cron presets
-- `/jobs/[id]` — job detail: subscriptions + payment plans
-- `/payments` — all jobs with payment plans, plan cards with running balance
+- `/dashboard` — next-due hero (`NextDueHero`), month calendar (`MonthCalendar`), Thai jobs list with date leaves
+- `/jobs/new` — calendar-style add job form with cron presets
+- `/jobs/[id]` — job detail: `JobEditor` (name/cron/enabled), subscriptions, payment plans
+- `/payments` — all jobs with payment plans, passbook-row plan cards
 
 ### Payment plan visualization
 
-The installment amount is fixed, so an "amount per month" chart is a flat line. `components/charts/BalanceChart.tsx` renders a remaining-balance burn-down instead (pure inline SVG, no chart library): solid accent line = recorded installments, dashed = projected to the final installment, marker at the current month. `components/charts/PlanProgress.tsx` is the continuous progress bar + "how long to 100%" numbers. `components/payments/PlanCard.tsx` shows a running "Balance After" column instead of the flat per-row amount, and computes Paid/Remaining from actual record amounts.
+`components/payments/PlanCard.tsx` renders passbook rows (date, item, amount, running "Balance After") and computes Paid/Remaining from actual record amounts. `components/charts/PlanProgress.tsx` is the continuous progress bar with Thai "how long to 100%" numbers; `components/charts/BalanceChart.tsx` is a remaining-balance burn-down in pure inline SVG (solid = recorded, dashed = projected, marker at the current month). `lib/plan.ts` holds the next-installment/totals logic.
 
 ### Design system
 
 - `tokens.css` (CSS custom properties) + `design.md` — all components use `var(--color-*)`, `var(--space-*)`, `var(--text-*)` tokens; match this style in new UI
 - Tailwind CSS v4 via `@tailwindcss/postcss` (no `tailwind.config.js`); container queries (`@min-[44rem]`) for card-level breakpoints
-- Dark-only palette (oklch), min 44px touch targets, `prefers-reduced-motion` respected
-- Fonts: Inter + Noto Sans Thai + JetBrains Mono via `next/font`
-- Currency formatting in `lib/format.ts` (Thai locale, `฿`)
+- Light-only palette (oklch, ink accent). Weekday colours `--day-0…6` appear only on date marks (`DateLeaf`, calendar dots)
+- Thai-first UI copy; min 44px touch targets, `prefers-reduced-motion` respected
+- Fonts: Kanit (display) + Anuphan (UI) + JetBrains Mono (cron/IDs/amounts) via `next/font`
+- Dates/currency in `lib/format.ts` (Asia/Bangkok, Buddhist-era years, `฿`); cron text via `lib/cron.ts` / `CronSchedule`
+
+### Self-checks
+
+No test runner; `lib/*.test.ts` are assert scripts run with `npx tsx lib/<name>.test.ts` (`cron`, `format`, `plan`, `jobPatch`).
 
 ### Auth
 

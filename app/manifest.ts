@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Notifything",
     short_name: "Notifything",
-    description: "Notification and payment tracking",
+    description: "แจ้งเตือนงานและติดตามการชำระเงิน",
     start_url: "/dashboard",
     display: "standalone",
     background_color: "#fbfaf7",
