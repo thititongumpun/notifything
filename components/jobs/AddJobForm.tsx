@@ -6,16 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { describeCron } from "@/lib/cron";
+import { CRON_PRESETS } from "./presets";
 import { backLink, btnPrimary, btnSecondary, dangerCallout } from "@/components/ui/styles";
-
-const CRON_PRESETS = [
-  "0 12 * * *",
-  "0 0 * * *",
-  "0 9 * * 1-5",
-  "0 8 * * 1",
-  "0 12 1 * *",
-  "*/5 * * * *",
-];
 
 const inputClass =
   "w-full bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-[var(--radius-input)] px-3 min-h-[44px] py-2 text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)]";

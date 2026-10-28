@@ -23,14 +23,18 @@ export default function JobDetailLoading() {
       <Skeleton className="h-5 w-36" />
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-[var(--space-2xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
-        <Skeleton className="h-7 w-48" />
-        <Skeleton className="h-6 w-20 rounded-[var(--radius-pill)]" />
+      <div className="flex items-start gap-[var(--space-xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
+        <Skeleton className="h-20 w-16 flex-none" />
+        <div className="flex flex-1 flex-col gap-[var(--space-2xs)]">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-11 w-40" />
+          <Skeleton className="h-10 w-56" />
+        </div>
       </div>
 
       {/* Facts */}
       <div className="pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
-        <Facts n={4} />
+        <Facts n={3} />
       </div>
 
       {/* Subscription */}
