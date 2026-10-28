@@ -48,3 +48,6 @@ public/sw.js.map
 
 # claude code local (machine-specific) settings
 .claude/settings.local.json
+
+# local scratch (superpowers demos/ledgers, impeccable workspace)
+.superpowers/
