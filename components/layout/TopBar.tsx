@@ -18,38 +18,37 @@ export function TopBar({ title }: { title: string }) {
     <header className="sticky top-0 z-20 flex items-center justify-between gap-[var(--space-2xs)] min-h-14 pt-[env(safe-area-inset-top)] px-[var(--space-sm)] md:px-[var(--space-md)] border-b border-[var(--color-rule)] bg-[var(--color-paper)]">
       {/* Mobile: wordmark (sidebar hidden below md); Desktop: page title */}
       <div className="flex items-center gap-[var(--space-2xs)] min-w-0 md:min-w-0">
-        <span className="flex md:hidden items-baseline gap-[var(--space-2xs)] min-w-0">
+        <span className="flex md:hidden min-w-0">
           <span className="font-display text-[length:var(--text-md)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] whitespace-nowrap">
             Notifything
           </span>
-          <TodayDate />
         </span>
         <p className="hidden md:block font-display text-[length:var(--text-title)] leading-[var(--leading-tight)] tracking-[-0.02em] font-semibold text-[var(--color-ink)] min-w-0 [overflow-wrap:anywhere]">
           {title}
         </p>
       </div>
-      <div className="flex items-center gap-[var(--space-2xs)]">
-      <span className="hidden md:inline"><TodayDate /></span>
-      <Dropdown>
-        <Dropdown.Trigger className="min-h-11 min-w-11 grid place-items-center rounded-full">
-          <Avatar size="sm" color="accent" className="cursor-pointer">
-            <Avatar.Fallback>{initials}</Avatar.Fallback>
-          </Avatar>
-        </Dropdown.Trigger>
-        <Dropdown.Popover>
-          <Dropdown.Menu onAction={(key) => { if (key === "logout") signOut({ redirectUrl: "/sign-in" }); }}>
-            <Dropdown.Item id="profile" textValue={user.fullName}>
-              <div>
-                <p className="text-[length:var(--text-sm)] font-medium">{user.fullName}</p>
-                <p className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{user.emailAddress}</p>
-              </div>
-            </Dropdown.Item>
-            <Dropdown.Item id="logout" textValue="ออกจากระบบ">
-              <Label className="text-[var(--color-danger)]">ออกจากระบบ</Label>
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown.Popover>
-      </Dropdown>
+      <div className="flex items-center gap-[var(--space-2xs)] shrink-0">
+        <TodayDate />
+        <Dropdown>
+          <Dropdown.Trigger className="min-h-11 min-w-11 grid place-items-center rounded-full">
+            <Avatar size="sm" color="accent" className="cursor-pointer">
+              <Avatar.Fallback>{initials}</Avatar.Fallback>
+            </Avatar>
+          </Dropdown.Trigger>
+          <Dropdown.Popover>
+            <Dropdown.Menu onAction={(key) => { if (key === "logout") signOut({ redirectUrl: "/sign-in" }); }}>
+              <Dropdown.Item id="profile" textValue={user.fullName}>
+                <div>
+                  <p className="text-[length:var(--text-sm)] font-medium">{user.fullName}</p>
+                  <p className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">{user.emailAddress}</p>
+                </div>
+              </Dropdown.Item>
+              <Dropdown.Item id="logout" textValue="ออกจากระบบ">
+                <Label className="text-[var(--color-danger)]">ออกจากระบบ</Label>
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown.Popover>
+        </Dropdown>
       </div>
     </header>
   );

@@ -16,7 +16,7 @@ const snapshot = () => {
 export function TodayDate() {
   const text = useSyncExternalStore(subscribe, snapshot, () => "");
   return (
-    <span className="inline-block min-w-[9.5rem] text-[length:var(--text-xs)] text-[var(--color-ink-2)] whitespace-nowrap">
+    <span className="inline-block min-w-[6.25rem] md:min-w-[9.5rem] text-right text-[length:var(--text-xs)] text-[var(--color-ink-2)] whitespace-nowrap">
       {text}
     </span>
   );
