@@ -86,6 +86,14 @@ assert.deepEqual(runDaysInMonth("0 12 31 * *", 2026, 11), []);
 assert.deepEqual(runDaysInMonth("*/5 * * * *", 2026, 2), Array.from({ length: 28 }, (_, i) => i + 1));
 assert.deepEqual(runDaysInMonth("0 0 1 1,7 *", 2026, 11), []);
 assert.equal(runDaysInMonth("0 12 L * *", 2026, 11), null);
+// dow 7 == Sunday inside ranges and lists
+const sundays = [1, 8, 15, 22, 29];
+assert.deepEqual(runDaysInMonth("0 9 * * 1-7", 2026, 11), Array.from({ length: 30 }, (_, i) => i + 1));
+assert.deepEqual(runDaysInMonth("0 9 * * 5-7", 2026, 11), [1, 6, 7, 8, 13, 14, 15, 20, 21, 22, 27, 28, 29]);
+assert.deepEqual(runDaysInMonth("0 9 * * 7-7", 2026, 11), sundays);
+assert.deepEqual(runDaysInMonth("0 0 * * 7", 2026, 11), sundays);
+assert.deepEqual(runDaysInMonth("0 9 * * 5,7", 2026, 11), [1, 6, 8, 13, 15, 20, 22, 27, 29]);
+assert.equal(iso(nextRun("0 9 * * 6-7", at("2026-11-01T00:00:00Z"))), "2026-11-01T02:00:00.000Z");
 // invariant: nextRun/runDaysInMonth are null exactly when describeCron falls back
 for (const [e] of cases) {
   const fb = describeCron(e) === F;

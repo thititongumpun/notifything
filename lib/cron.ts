@@ -139,7 +139,7 @@ function toSet(f: F, min: number, max: number, mod = 0): Set<number> {
       f.k === "any" ||
       (f.k === "step" && i % f.n === 0) ||
       (f.k === "list" && f.v.some((x) => (mod ? x % mod : x) === i)) ||
-      (f.k === "range" && i >= f.a && i <= f.b);
+      (f.k === "range" && ((i >= f.a && i <= f.b) || (mod > 0 && i + mod >= f.a && i + mod <= f.b))); // dow 7 == Sunday
     if (ok) out.add(i);
   }
   return out;
