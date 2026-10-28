@@ -1,4 +1,3 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 "use client";
 
 import { useState } from "react";
@@ -19,17 +18,27 @@ import {
 import { parseDate, type CalendarDate } from "@internationalized/date";
 import { Loader2, X } from "lucide-react";
 import type { PaymentPlan } from "@/lib/types";
+import type { NextInstallment } from "@/lib/plan";
+import { bkkParts } from "@/lib/format";
 import { btnPrimary, btnSecondary, dangerCallout } from "@/components/ui/styles";
 
 interface AddPaymentModalProps {
   plan: PaymentPlan;
   prefill?: PaymentPlan["payments"][number];
+  /** Next installment; prefills a new record when it has no existing one. */
+  next?: NextInstallment;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+function isoDay(d: Date) {
+  const p = bkkParts(d);
+  const z = (n: number) => String(n).padStart(2, "0");
+  return `${p.year}-${z(p.month)}-${z(p.day)}`;
+}
+
 function today() {
-  return new Date().toISOString().split("T")[0];
+  return isoDay(new Date());
 }
 
 const inputClass =
@@ -46,16 +55,23 @@ function RequiredMark() {
   );
 }
 
-export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymentModalProps) {
+export function AddPaymentModal({ plan, prefill, next, onClose, onSuccess }: AddPaymentModalProps) {
   const nextMonth =
     plan.payments.length > 0 ? Math.max(...plan.payments.map((p) => p.paymentMonth)) + 1 : 1;
 
-  const [paymentMonth, setPaymentMonth] = useState(prefill?.paymentMonth ?? nextMonth);
+  const seed = !prefill && next && !next.existingRecordId ? next : null;
+  const [paymentMonth, setPaymentMonth] = useState(
+    prefill?.paymentMonth ?? seed?.paymentMonth ?? nextMonth,
+  );
   const [dueDate, setDueDate] = useState<CalendarDate | null>(
-    prefill?.dueDate ? parseDate(prefill.dueDate) : null,
+    prefill?.dueDate
+      ? parseDate(prefill.dueDate.slice(0, 10))
+      : seed
+        ? parseDate(isoDay(new Date(seed.dueDate)))
+        : null,
   );
   const [amount, setAmount] = useState(
-    prefill ? Number(prefill.amount) || 0 : Number(plan.monthlyAmount) || 0,
+    prefill ? Number(prefill.amount) || 0 : (seed?.amount ?? (Number(plan.monthlyAmount) || 0)),
   );
   const [isPaid, setIsPaid] = useState(true);
   const [paidDate, setPaidDate] = useState<CalendarDate | null>(parseDate(today()));
@@ -99,7 +115,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
 
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
     } finally {
       setLoading(false);
     }
@@ -107,7 +123,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
 
   return (
     <Modal state={modalState}>
-      <Modal.Backdrop className="bg-black/70">
+      <Modal.Backdrop className="bg-black/40">
         <Modal.Container placement="center" size="md">
           <Modal.Dialog className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
             <Modal.Header className="flex items-center justify-between border-b border-[var(--color-rule)]">
@@ -120,7 +136,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                     letterSpacing: "-0.02em",
                   }}
                 >
-                  Add payment
+                  บันทึกการชำระ
                 </Modal.Heading>
                 <p
                   className="mt-[var(--space-3xs)] max-w-xs truncate text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]"
@@ -130,7 +146,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                 </p>
               </div>
               <Modal.CloseTrigger
-                aria-label="Close"
+                aria-label="ปิด"
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-[var(--space-3xs)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] [transition-timing-function:var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px"
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -141,7 +157,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-2xs)]">
                   <TextField className="flex flex-col gap-[var(--space-3xs)]">
                     <Label className={labelClass}>
-                      Payment month <RequiredMark />
+                      งวดที่ <RequiredMark />
                     </Label>
                     <Input
                       required
@@ -159,7 +175,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                     className="flex flex-col gap-[var(--space-3xs)]"
                   >
                     <Label className={labelClass}>
-                      Amount (THB) <RequiredMark />
+                      จำนวนเงิน (บาท) <RequiredMark />
                     </Label>
                     <NumberField.Group className={inputClass}>
                       <NumberField.DecrementButton />
@@ -172,7 +188,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                 <div className="flex flex-col gap-[var(--space-3xs)]">
                   <DatePicker isRequired value={dueDate} onChange={setDueDate} name="dueDate">
                     <Label className={labelClass}>
-                      Due date <RequiredMark />
+                      วันครบกำหนด <RequiredMark />
                     </Label>
                     <DateField.Group fullWidth className={inputClass}>
                       <DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input>
@@ -183,7 +199,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                       </DateField.Suffix>
                     </DateField.Group>
                     <DatePicker.Popover>
-                      <Calendar aria-label="Due date">
+                      <Calendar aria-label="วันครบกำหนด">
                         <Calendar.Header>
                           <Calendar.YearPickerTrigger>
                             <Calendar.YearPickerTriggerHeading />
@@ -217,14 +233,14 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                     <Switch.Thumb />
                   </Switch.Control>
                   <Switch.Content>
-                    <Label className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)]">Paid</Label>
+                    <Label className="text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink)]">ชำระแล้ว</Label>
                   </Switch.Content>
                 </Switch>
 
                 {isPaid ? (
                   <div className="flex flex-col gap-[var(--space-3xs)]">
                     <DatePicker value={paidDate} onChange={setPaidDate} name="paidDate">
-                      <Label className={labelClass}>Paid date</Label>
+                      <Label className={labelClass}>วันที่ชำระ</Label>
                       <DateField.Group fullWidth className={inputClass}>
                         <DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input>
                         <DateField.Suffix>
@@ -234,7 +250,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                         </DateField.Suffix>
                       </DateField.Group>
                       <DatePicker.Popover>
-                        <Calendar aria-label="Paid date">
+                        <Calendar aria-label="วันที่ชำระ">
                           <Calendar.Header>
                             <Calendar.YearPickerTrigger>
                               <Calendar.YearPickerTriggerHeading />
@@ -262,21 +278,21 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-2xs)]">
                   <TextField className="flex flex-col gap-[var(--space-3xs)]">
-                    <Label className={labelClass}>Receipt no.</Label>
+                    <Label className={labelClass}>เลขที่ใบเสร็จ</Label>
                     <Input
                       type="text"
                       value={receiptNumber}
-                      placeholder="optional"
+                      placeholder="ไม่บังคับ"
                       onChange={(e) => setReceiptNumber(e.target.value)}
                       className={inputClass}
                     />
                   </TextField>
                   <TextField className="flex flex-col gap-[var(--space-3xs)]">
-                    <Label className={labelClass}>Notes</Label>
+                    <Label className={labelClass}>หมายเหตุ</Label>
                     <Input
                       type="text"
                       value={notes}
-                      placeholder="optional"
+                      placeholder="ไม่บังคับ"
                       onChange={(e) => setNotes(e.target.value)}
                       className={inputClass}
                     />
@@ -296,7 +312,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                     className={`${btnSecondary} flex-1`}
                     onPress={onClose}
                   >
-                    Cancel
+                    ยกเลิก
                   </Button>
                   <Button
                     type="submit"
@@ -304,7 +320,7 @@ export function AddPaymentModal({ plan, prefill, onClose, onSuccess }: AddPaymen
                     isDisabled={loading}
                   >
                     {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-                    {loading ? "Saving…" : "Save payment"}
+                    {loading ? "กำลังบันทึก…" : "บันทึก"}
                   </Button>
                 </div>
               </Form>

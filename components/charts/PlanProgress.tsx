@@ -1,20 +1,18 @@
 /* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 import type { PaymentPlan } from "@/lib/types";
-import { fmt } from "@/lib/format";
+import { fmt, fmtPassbookDate, fmtThaiMonthYear } from "@/lib/format";
 import { planTotals } from "@/lib/plan";
 
 function fmtMonthYear(date: string | null): string | null {
-  if (!date) return null;
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  if (!date || Number.isNaN(new Date(date).getTime())) return null;
+  return fmtThaiMonthYear(date);
 }
 
 /** Per-plan progress toward 100% — continuous bar with a clearly visible
  *  unpaid track (accent = paid, --color-track = remaining), plus the numbers
  *  that answer "how long to 100%": months, money left, projected finish.
  *  Screen readers get the sr-only table. */
-export function PlanProgress({ plan }: { plan: PaymentPlan }) {
+export function PlanProgress({ plan, showTitle = true }: { plan: PaymentPlan; showTitle?: boolean }) {
   const months = [...plan.payments].sort(
     (a, b) => a.paymentMonth - b.paymentMonth,
   );
@@ -30,14 +28,12 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
   return (
     <figure className="min-w-0">
       <figcaption className="flex items-baseline justify-between gap-[var(--space-2xs)] min-w-0">
-        <span className="text-[length:var(--text-sm)] font-medium leading-[var(--leading-table)] text-[var(--color-ink)] min-w-0 truncate">
-          {plan.description}
+        <span className="min-w-0 font-display text-[length:var(--text-sm)] font-medium leading-[var(--leading-table)] text-[var(--color-ink)] [overflow-wrap:anywhere]">
+          {showTitle ? plan.description : `ชำระแล้ว ${paidCount}/${total} งวด`}
         </span>
         <span
           className={`shrink-0 font-mono tabular-nums text-[length:var(--text-md)] leading-none ${
-            complete
-              ? "text-[var(--color-accent)]"
-              : "text-[var(--color-ink)]"
+            "text-[var(--color-ink)]"
           }`}
         >
           {pct}%
@@ -46,12 +42,12 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
 
       {/* Track = remaining (visible), fill = paid (accent) */}
       <div
-        className="mt-[var(--space-2xs)] h-[12px] overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-track)]"
+        className="mt-[var(--space-2xs)] h-[10px] overflow-hidden rounded-[var(--radius-pill)] bg-[var(--color-track)]"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={pct}
-        aria-label={`${plan.description}: ${pct} percent paid, ${paidCount} of ${total} months, ฿${fmt(remainingSum)} remaining${finish ? `, finishes ${finish}` : ""}`}
+        aria-label={`${plan.description}: ชำระแล้ว ${paidCount} จาก ${total} งวด (${pct}%) คงเหลือ ฿${fmt(remainingSum)}${finish ? ` จบ ${finish}` : ""}`}
       >
         <div
           className="h-full rounded-[var(--radius-pill)] bg-[var(--color-accent)] transition-[width] duration-[var(--dur-short)] ease-[var(--ease-out)]"
@@ -62,21 +58,19 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
       {/* The "how long to 100%" numbers */}
       <div className="mt-[var(--space-2xs)] flex flex-wrap items-baseline gap-x-[var(--space-xs)] gap-y-[var(--space-3xs)] tabular-nums text-[length:var(--text-xs)] leading-[var(--leading-table)] text-[var(--color-ink-2)]">
         {complete ? (
-          <span className="text-[var(--color-accent)]">
-            Complete: all {total} months paid
-          </span>
+          <span className="text-[var(--color-ink)]">ชำระครบ {total} งวดแล้ว</span>
         ) : (
           <>
+            {showTitle ? (
+              <span>
+                ชำระแล้ว <span className="text-[var(--color-ink)]">{paidCount}/{total}</span> งวด
+              </span>
+            ) : null}
             <span>
-              <span className="text-[var(--color-ink)]">{paidCount}</span>/
-              {total} months
+              คงเหลือ ฿{fmt(remainingSum)} จาก ฿{fmt(totalSum)}
             </span>
             <span>
-              ฿{fmt(remainingSum)} left of ฿{fmt(totalSum)}
-            </span>
-            <span>
-              {monthsLeft} {monthsLeft === 1 ? "month" : "months"} to go
-              {finish ? ` · ends ${finish}` : ""}
+              อีก {monthsLeft} งวด{finish ? ` · จบ ${finish}` : ""}
             </span>
           </>
         )}
@@ -88,22 +82,22 @@ export function PlanProgress({ plan }: { plan: PaymentPlan }) {
           at narrow viewports). A block-level div collapses to 1px fine. */}
       <div className="sr-only">
         <table>
-          <caption>Payment progress for {plan.description}</caption>
+          <caption>ความคืบหน้าการชำระ {plan.description}</caption>
           <thead>
             <tr>
-              <th scope="col">Month</th>
-              <th scope="col">Due date</th>
-              <th scope="col">Amount (THB)</th>
-              <th scope="col">Status</th>
+              <th scope="col">งวด</th>
+              <th scope="col">วันครบกำหนด</th>
+              <th scope="col">จำนวนเงิน (บาท)</th>
+              <th scope="col">สถานะ</th>
             </tr>
           </thead>
           <tbody>
             {months.map((p) => (
               <tr key={p.id}>
                 <th scope="row">{p.paymentMonth}</th>
-                <td>{p.dueDate}</td>
+                <td>{fmtPassbookDate(p.dueDate)}</td>
                 <td>{fmt(p.amount)}</td>
-                <td>{p.isPaid ? "Paid" : "Unpaid"}</td>
+                <td>{p.isPaid ? "ชำระแล้ว" : "ยังไม่ชำระ"}</td>
               </tr>
             ))}
           </tbody>

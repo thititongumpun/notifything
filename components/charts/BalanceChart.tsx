@@ -1,6 +1,6 @@
 /* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 import type { PaymentPlan } from "@/lib/types";
-import { fmt } from "@/lib/format";
+import { bkkParts, fmt } from "@/lib/format";
 
 // Plot-only coordinate space; the SVG stretches to the box (preserveAspectRatio
 // none) and all text is HTML, so labels stay >=12px at any width.
@@ -17,8 +17,8 @@ function fmtCompact(v: number) {
 /** Remaining-balance burn-down over the life of the plan. The installment
  *  amount is fixed, so a per-month amount chart is a flat line and carries
  *  no information; the running balance drops every month and shows exactly
- *  where the payer stands. Solid accent = recorded installments, dashed
- *  track = projected to the final installment. Pure inline SVG, no chart
+ *  where the payer stands. Solid ink = recorded installments, dashed
+ *  ink-2 = projected to the final installment. Pure inline SVG, no chart
  *  library. Screen readers get the summary in aria-label. */
 export function BalanceChart({ plan }: { plan: PaymentPlan }) {
   const { payments, totalAmount, monthlyAmount, totalMonths, startDate } = plan;
@@ -62,22 +62,26 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
     projPts.push(`${x(m).toFixed(1)},${y(balanceAt(m)).toFixed(1)}`);
   }
 
-  // X ticks: January of each year covered by the schedule, thinned so long
-  // plans (e.g. 360 months) don't produce overlapping labels.
+  // X ticks: January of each year covered by the schedule (Buddhist era),
+  // thinned so long plans (e.g. 360 months) don't produce overlapping labels.
   const byMonth = new Map(sorted.map((p) => [p.paymentMonth, p]));
+  const startP = bkkParts(new Date(startDate));
   const monthDate = (m: number) => {
     const rec = byMonth.get(m);
-    if (rec?.dueDate) return new Date(rec.dueDate);
-    const start = new Date(startDate);
-    return new Date(start.getFullYear(), start.getMonth() + (m - 1), 1);
+    if (rec?.dueDate) {
+      const p = bkkParts(new Date(rec.dueDate));
+      return { year: p.year, month: p.month - 1 };
+    }
+    const idx = startP.year * 12 + (startP.month - 1) + (m - 1);
+    return { year: Math.floor(idx / 12), month: idx % 12 };
   };
   const janTicks: { x: number; label: string }[] = [];
   const seenYears = new Set<number>();
   for (let m = 1; m <= totalMonths; m++) {
     const d = monthDate(m);
-    if (d.getMonth() === 0 && !seenYears.has(d.getFullYear())) {
-      seenYears.add(d.getFullYear());
-      janTicks.push({ x: x(m), label: String(d.getFullYear()) });
+    if (d.month === 0 && !seenYears.has(d.year)) {
+      seenYears.add(d.year);
+      janTicks.push({ x: x(m), label: String(d.year + 543) });
     }
   }
   const step = Math.max(1, Math.ceil(janTicks.length / 7));
@@ -94,22 +98,22 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
     <figure className="min-w-0">
       <div className="flex items-baseline justify-between gap-[var(--space-3xs)] min-w-0">
         <figcaption className="text-[length:var(--text-xs)] text-[var(--color-ink-2)]">
-          Remaining balance
+          คงเหลือ
         </figcaption>
         <div className="flex shrink-0 items-center gap-[var(--space-2xs)] text-[length:var(--text-xs)] text-[var(--color-ink-2)]">
           <span className="inline-flex items-center gap-1">
             <span
-              className="inline-block h-0.5 w-3 rounded bg-[var(--color-accent)]"
+              className="inline-block h-0.5 w-3 rounded bg-[var(--color-ink)]"
               aria-hidden
             />
-            Paid
+            ชำระแล้ว
           </span>
           <span className="inline-flex items-center gap-1">
             <span
               className="inline-block h-0.5 w-3 border-t border-dashed border-[var(--color-ink-2)]"
               aria-hidden
             />
-            Projected
+            ประมาณการ
           </span>
         </div>
       </div>
@@ -129,7 +133,7 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
         <div
           className="relative h-[140px]"
           role="img"
-          aria-label={`Remaining balance: ฿${fmt(currentBalance)} of ฿${fmt(total)} after month ${frontier} of ${totalMonths}`}
+          aria-label={`คงเหลือ ฿${fmt(currentBalance)} จาก ฿${fmt(total)} หลังงวดที่ ${frontier} จาก ${totalMonths}`}
         >
           <svg
             viewBox={`0 0 ${INNER_W} ${INNER_H}`}
@@ -153,29 +157,29 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
               <polyline
                 points={projPts.join(" ")}
                 fill="none"
-                stroke="var(--color-track)"
+                stroke="var(--color-ink-2)"
                 strokeWidth="1.5"
                 strokeDasharray="4 4"
                 vectorEffect="non-scaling-stroke"
               />
             )}
             {paidArea && (
-              <path d={paidArea} fill="var(--color-accent)" fillOpacity={0.12} />
+              <path d={paidArea} fill="var(--color-track)" fillOpacity={0.7} />
             )}
             {paidPts.length > 1 && (
               <polyline
                 points={paidPts.join(" ")}
                 fill="none"
-                stroke="var(--color-accent)"
+                stroke="var(--color-ink)"
                 strokeWidth="2"
                 vectorEffect="non-scaling-stroke"
               />
             )}
           </svg>
           <span
-            className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-paper-2)]"
+            className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-ink)] ring-2 ring-[var(--color-paper-2)]"
             style={{ left: pctX(x(frontier)), top: pctY(y(currentBalance)) }}
-            title={`Month ${frontier} — ฿${fmt(currentBalance)} remaining`}
+            title={`งวดที่ ${frontier} — คงเหลือ ฿${fmt(currentBalance)}`}
           />
         </div>
         <div className="relative col-start-2 mt-1 h-4 font-mono tabular-nums text-[length:var(--text-xs)] leading-none text-[var(--color-ink-2)]" aria-hidden>

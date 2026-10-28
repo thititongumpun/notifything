@@ -1,13 +1,13 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app */
 "use client";
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PaymentPlan } from "@/lib/types";
-import { fmt, fmtDate } from "@/lib/format";
+import { fmt, fmtPassbookDate } from "@/lib/format";
+import { nextInstallment, planTotals } from "@/lib/plan";
 import { BalanceChart } from "@/components/charts/BalanceChart";
-import { StatusChip } from "@/components/ui/StatusChip";
-import { btnPrimary, btnSecondary } from "@/components/ui/styles";
+import { PlanProgress } from "@/components/charts/PlanProgress";
+import { btnPrimary } from "@/components/ui/styles";
 
 const PAGE_SIZE = 12;
 
@@ -24,173 +24,123 @@ interface PlanCardProps {
 export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps) {
   const [page, setPage] = useState(1);
 
-  const paidCount = plan.payments.filter((p) => p.isPaid).length;
-  const pct = Math.min(100, Math.round((paidCount / plan.totalMonths) * 100));
-
+  const { paidSum, remainingSum } = planTotals(plan);
+  const next = nextInstallment(plan);
   const sorted = [...plan.payments].sort((a, b) => a.paymentMonth - b.paymentMonth);
+  const nextUnpaid = next?.existingRecordId
+    ? (sorted.find((p) => p.id === next.existingRecordId) ?? null)
+    : null;
 
-  // Running remaining balance after each installment. Unlike the flat monthly
-  // amount (identical on every row), this changes every month and shows
-  // actual payoff progress.
-  const balanceAfter = new Map<string, number>();
-  let cumPaid = 0;
-  for (const p of sorted) {
-    if (p.isPaid) cumPaid += Number(p.amount) || 0;
-    balanceAfter.set(p.id, Math.max(Number(plan.totalAmount) - cumPaid, 0));
-  }
-  const paidAmount = cumPaid;
-  const remaining = Math.max(Number(plan.totalAmount) - paidAmount, 0);
+  // Running remaining balance after each paid installment.
+  const ledger = sorted.reduce<
+    { id: string; month: number; date: string; paid: boolean; amount: number; balance: number; cum: number }[]
+  >((rows, p) => {
+    const cum = (rows.at(-1)?.cum ?? 0) + (p.isPaid ? Number(p.amount) || 0 : 0);
+    if (p.id !== next?.existingRecordId) {
+      rows.push({
+        id: p.id,
+        month: p.paymentMonth,
+        date: p.isPaid && p.paidDate ? p.paidDate : p.dueDate,
+        paid: p.isPaid,
+        amount: Number(p.amount) || 0,
+        balance: Math.max(Number(plan.totalAmount) - cum, 0),
+        cum,
+      });
+    }
+    return rows;
+  }, []);
 
-  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const nextUnpaid = sorted.find((p) => !p.isPaid) ?? null;
+  const totalPages = Math.max(1, Math.ceil(ledger.length / PAGE_SIZE));
+  const paginated = ledger.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const showDue = next !== null && page === totalPages;
+
+  const cell = "px-[var(--space-3xs)] py-[var(--space-2xs)] first:pl-[var(--space-xs)] last:pr-[var(--space-xs)] sm:first:pl-[var(--space-sm)] sm:last:pr-[var(--space-sm)]";
+  const th = `${cell} text-[length:var(--text-xs)] font-medium leading-[var(--leading-table)] text-[var(--color-ink-2)]`;
+  const rowCls = "border-b border-dotted border-[var(--color-leaf-edge)] last:border-b-0";
 
   return (
     <div className="@container flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)]">
       {/* Plan header */}
       <div className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
         <p
-          className="min-w-0 text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-ink)]"
+          className="min-w-0 font-display text-[length:var(--text-md)] leading-[var(--leading-tight)] font-medium text-[var(--color-ink)]"
           style={{ overflowWrap: "anywhere" }}
         >
           {plan.description}
         </p>
-        <p className="mt-[var(--space-3xs)] text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          <span className="font-mono tabular-nums">{fmtDate(plan.startDate)} → {fmtDate(plan.endDate)}</span>
-        </p>
-      </div>
-
-      {/* Summary stats — amounts in mono */}
-      <div className="grid grid-cols-2 gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] @min-[28rem]:grid-cols-4 sm:px-[var(--space-sm)] sm:py-[var(--space-xs)]">
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Total</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
-            ฿{fmt(plan.totalAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Monthly</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
-            ฿{fmt(plan.monthlyAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Paid</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
-            ฿{fmt(paidAmount)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]">Remaining</p>
-          <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] font-semibold text-[var(--color-ink)] font-mono [overflow-wrap:anywhere]">
-            ฿{fmt(remaining)}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress — months paid + remaining-balance burn-down. A flat bar
-          (or one equal segment per installment) carries no information for a
-          fixed installment plan; the running balance drops every month. */}
-      <div className="flex flex-col gap-[var(--space-3xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-        <div className="flex items-center justify-between text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
+        <div className="mt-[var(--space-2xs)] flex flex-wrap gap-x-[var(--space-sm)] gap-y-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
           <span>
-            {paidCount} of {plan.totalMonths} months paid
+            งวดละ <span className="font-mono tabular-nums text-[var(--color-ink)]">฿{fmt(plan.monthlyAmount)}</span>
           </span>
-          <span className="font-mono tabular-nums">{pct}%</span>
+          <span>
+            คงเหลือ <span className="font-mono tabular-nums text-[var(--color-ink)]">฿{fmt(remainingSum)}</span>
+          </span>
+          <span className="sr-only">ชำระแล้ว ฿{fmt(paidSum)}</span>
         </div>
+      </div>
+
+      {/* Progress + burn-down */}
+      <div className="flex flex-col gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
+        <PlanProgress plan={plan} showTitle={false} />
         <BalanceChart plan={plan} />
       </div>
 
-      {/* Payments — desktop table */}
-      <div className="hidden overflow-x-auto @min-[44rem]:block">
-        <table className="w-full text-[length:var(--text-sm)] leading-[var(--leading-table)]">
-          <thead>
-            <tr className="border-b border-[var(--color-rule)]">
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">#</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Due date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Balance after</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Status</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Paid date</th>
-              <th className="px-[var(--space-xs)] py-[var(--space-2xs)] text-left text-[length:var(--text-xs)] leading-[var(--leading-table)] font-medium uppercase tracking-wide text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">Notes</th>
+      {/* Passbook — 4 short columns, never scrolls sideways */}
+      <table className="w-full table-fixed border-collapse font-mono text-[length:var(--text-xs)] leading-[var(--leading-table)] tabular-nums @min-[28rem]:text-[length:var(--text-sm)]">
+        <caption className="sr-only">สมุดบัญชีการชำระ {plan.description}</caption>
+        <colgroup>
+          <col style={{ width: "27%" }} />
+          <col style={{ width: "24%" }} />
+          <col style={{ width: "23%" }} />
+          <col style={{ width: "26%" }} />
+        </colgroup>
+        <thead>
+          <tr className="border-b border-[var(--color-rule)] font-body">
+            <th scope="col" className={`${th} text-left`}>วันที่</th>
+            <th scope="col" className={`${th} text-left`}>รายการ</th>
+            <th scope="col" className={`${th} text-right`}>จ่าย</th>
+            <th scope="col" className={`${th} text-right`}>คงเหลือ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginated.map((r) => (
+            <tr key={r.id} className={`${rowCls} text-[var(--color-ink)]`}>
+              <td className={`${cell} text-left`}>{fmtPassbookDate(r.date)}</td>
+              <td className={`${cell} text-left font-body`}>งวด {r.month}</td>
+              <td className={`${cell} text-right`}>{r.paid ? fmt(r.amount) : "—"}</td>
+              <td className={`${cell} text-right`}>{r.paid ? fmt(r.balance) : "—"}</td>
             </tr>
-          </thead>
-          <tbody>
-            {paginated.map((payment) => (
-              <tr
-                key={payment.id}
-                className="border-b border-[var(--color-rule)] last:border-b-0 transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)]"
-              >
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
-                  {payment.paymentMonth}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink)] sm:px-[var(--space-sm)]">
-                  {fmtDate(payment.dueDate)}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] text-right font-mono tabular-nums text-[var(--color-ink)] sm:px-[var(--space-sm)]">
-                  ฿{fmt(balanceAfter.get(payment.id) ?? 0)}
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-                  <StatusChip on={payment.isPaid} label={payment.isPaid ? "Paid" : "Unpaid"} />
-                </td>
-                <td className="px-[var(--space-xs)] py-[var(--space-2xs)] font-mono tabular-nums text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
-                  {fmtDate(payment.paidDate)}
-                </td>
-                <td className="max-w-[16rem] px-[var(--space-xs)] py-[var(--space-2xs)] text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
-                  <span style={{ overflowWrap: "anywhere" }}>{payment.notes || "—"}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Payments — mobile stacked cards */}
-      <div className="flex flex-col @min-[44rem]:hidden">
-        {paginated.map((payment) => (
-          <div
-            key={payment.id}
-            className="border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] last:border-b-0 sm:px-[var(--space-sm)]"
-          >
-            <div className="flex min-w-0 items-start justify-between gap-[var(--space-2xs)]">
-              <p className="text-[length:var(--text-sm)] leading-[var(--leading-table)] font-mono tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">
-                #{payment.paymentMonth} · ฿{fmt(balanceAfter.get(payment.id) ?? 0)} left
-              </p>
-              <span className="shrink-0">
-                <StatusChip on={payment.isPaid} label={payment.isPaid ? "Paid" : "Unpaid"} />
-              </span>
-            </div>
-            <dl className="mt-[var(--space-3xs)] flex flex-col gap-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-table)]">
-              <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Due</dt>
-                <dd className="font-mono tabular-nums text-[var(--color-ink)]">{fmtDate(payment.dueDate)}</dd>
-              </div>
-              <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Paid</dt>
-                <dd className="font-mono tabular-nums text-[var(--color-ink-2)]">{fmtDate(payment.paidDate)}</dd>
-              </div>
-              {payment.notes && (
-                <div className="flex min-w-0 gap-[var(--space-3xs)]">
-                  <dt className="shrink-0 text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-table)] text-[var(--color-ink-2)]">Notes</dt>
-                  <dd className="min-w-0 text-[var(--color-ink-2)]" style={{ overflowWrap: "anywhere" }}>{payment.notes}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
-        ))}
-      </div>
+          ))}
+          {showDue && next ? (
+            <tr className={`${rowCls} text-[var(--color-danger)]`}>
+              <td className={`${cell} text-left`}>{fmtPassbookDate(next.dueDate)}</td>
+              <td className={`${cell} text-left font-body`}>
+                งวด {next.paymentMonth}
+                <span className="block text-[length:var(--text-xs)] font-medium">ครบกำหนด</span>
+              </td>
+              <td className={`${cell} text-right`}>{fmt(next.amount)}</td>
+              <td className={`${cell} text-right`}>—</td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+      {!next && page === totalPages ? (
+        <p className="border-t border-dotted border-[var(--color-leaf-edge)] px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
+          ชำระครบแล้ว
+        </p>
+      ) : null}
 
       {/* Pagination — compact buttons, wraps on mobile instead of overflowing */}
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-end gap-[var(--space-2xs)] border-t border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:justify-between sm:px-[var(--space-sm)]">
           <p className="hidden text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] sm:block">
-            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} of{" "}
-            {sorted.length}
+            แสดง {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, ledger.length)} จาก {ledger.length}
           </p>
           <div className="flex flex-wrap items-center gap-[var(--space-3xs)]">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              aria-label="Previous page"
+              aria-label="หน้าก่อนหน้า"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -212,7 +162,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              aria-label="Next page"
+              aria-label="หน้าถัดไป"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" aria-hidden />
@@ -222,30 +172,17 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       )}
 
       {/* Card actions — parent owns the modal */}
-      {(onAddPayment || onRecordPayment) && (
+      {next && (onAddPayment || onRecordPayment) && (
         <div className="flex flex-wrap items-center justify-between gap-[var(--space-2xs)] border-t border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-          {onAddPayment ? (
-            <button
-              type="button"
-              onClick={onAddPayment}
-              className={btnSecondary}
-            >
-              Add payment
-            </button>
-          ) : null}
-          {nextUnpaid && onRecordPayment ? (
-            <button
-              type="button"
-              onClick={() => onRecordPayment(nextUnpaid)}
-              className={btnPrimary}
-            >
-              Record next payment
-            </button>
-          ) : !nextUnpaid ? (
-            <p className="text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-              All payments recorded
-            </p>
-          ) : null}
+          <button
+            type="button"
+            onClick={() =>
+              nextUnpaid && onRecordPayment ? onRecordPayment(nextUnpaid) : onAddPayment?.()
+            }
+            className={btnPrimary}
+          >
+            บันทึกการชำระ
+          </button>
         </div>
       )}
     </div>

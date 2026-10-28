@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { JobDetail, PaymentPlan } from "@/lib/types";
 import { PlanCard } from "@/components/payments/PlanCard";
+import { nextInstallment } from "@/lib/plan";
 import { dangerCallout } from "@/components/ui/styles";
 import { AddPaymentModal } from "./AddPaymentModal";
 
@@ -39,18 +40,18 @@ export function PaymentsClient({
 
   return (
     <>
-      <h1 className="sr-only">Payments</h1>
+      <h1 className="sr-only">การชำระ</h1>
       <div className="flex flex-col gap-[var(--space-md)]">
         {listError ? (
           <p className={dangerCallout}>
-            Couldn&apos;t load jobs: {listError}
+            โหลดรายการงานไม่สำเร็จ: {listError}
           </p>
         ) : null}
 
         {withPlans.map((entry) => (
           <div key={entry.id} className="flex min-w-0 flex-col gap-[var(--space-xs)]">
             <h2
-              className="min-w-0 text-[length:var(--text-lg)] leading-[var(--leading-tight)] font-semibold text-[var(--color-ink)]"
+              className="min-w-0 text-[length:var(--text-lg)] leading-[var(--leading-tight)] font-display font-semibold text-[var(--color-ink)]"
               style={{ letterSpacing: "-0.02em", overflowWrap: "anywhere" }}
             >
               {entry.name}
@@ -73,7 +74,7 @@ export function PaymentsClient({
 
         {errored.map((entry) => (
           <p key={entry.id} className={dangerCallout}>
-            Couldn&apos;t load payment plans for {entry.name}
+            โหลดแผนการชำระของ {entry.name} ไม่สำเร็จ
             {entry.error ? ` — ${entry.error}` : ""}
           </p>
         ))}
@@ -81,10 +82,10 @@ export function PaymentsClient({
         {isEmpty ? (
           <div className="rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-[var(--space-sm)] py-[var(--space-md)] text-center">
             <p className="text-[length:var(--text-sm)] leading-[var(--leading-body)] font-medium text-[var(--color-ink)]">
-              No payment plans yet
+              ยังไม่มีแผนการชำระ
             </p>
             <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-              Jobs are created from the jobs pages — add a payment plan there and it will show up here.
+              เพิ่มแผนการชำระในหน้างาน แล้วจะแสดงที่นี่
             </p>
           </div>
         ) : null}
@@ -94,6 +95,7 @@ export function PaymentsClient({
         <AddPaymentModal
           plan={active.plan}
           prefill={active.prefill}
+          next={nextInstallment(active.plan) ?? undefined}
           onClose={() => setActive(null)}
           onSuccess={handleSuccess}
         />
