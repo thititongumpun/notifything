@@ -7,11 +7,16 @@ import { revalidateTag } from "next/cache";
 export async function POST(req: Request) {
   const body = await req.text();
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/addjob`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/addjob`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
+  } catch {
+    return Response.json({ error: "เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ" }, { status: 502 });
+  }
 
   if (res.ok) {
     revalidateTag("jobs", "max");

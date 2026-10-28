@@ -16,7 +16,7 @@ export default function AppError({
           เกิดข้อผิดพลาด
         </p>
         <p className="mt-[var(--space-3xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]">
-          โหลดหน้านี้ไม่สำเร็จ {error.message}
+          โหลดหน้านี้ไม่สำเร็จ
         </p>
       </div>
       <button

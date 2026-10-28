@@ -15,7 +15,7 @@ async function getJob(id: string): Promise<JobDetail> {
     next: { revalidate: 60, tags: ["jobs"] },
   });
   if (res.status === 404) notFound();
-  if (!res.ok) throw new Error(`Failed to fetch job: ${res.status}`);
+  if (!res.ok) throw new Error(`โหลดข้อมูลงานไม่สำเร็จ (HTTP ${res.status})`);
   // The API returns 200 with an empty body for unknown ids.
   const job = await res.json().catch(() => null);
   if (!job || job.id !== id) notFound();
@@ -23,7 +23,7 @@ async function getJob(id: string): Promise<JobDetail> {
 }
 
 const labelClass =
-  "text-[length:var(--text-xs)] uppercase tracking-wide leading-[var(--leading-body)] text-[var(--color-ink-2)]";
+  "text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)]";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -54,7 +54,7 @@ export default async function JobDetailPage({ params }: Props) {
       </Link>
 
       <header className="flex items-start gap-[var(--space-xs)] pb-[var(--space-sm)] border-b border-[var(--color-rule)]">
-        <DateLeaf date={nextRun(job.cron, new Date())} size="lg" />
+        <DateLeaf date={job.enabled ? nextRun(job.cron, new Date()) : null} size="lg" />
         <JobEditor job={job} />
       </header>
 

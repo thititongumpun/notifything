@@ -8,6 +8,7 @@ import { describeCron, nextRun } from "@/lib/cron";
 import { fmtThaiDateTime } from "@/lib/format";
 import { DateLeaf } from "@/components/calendar/DateLeaf";
 import { CronSchedule } from "@/components/ui/CronSchedule";
+import { readError } from "@/lib/http";
 import { CRON_PRESETS } from "./presets";
 import { backLink, btnPrimary, btnSecondary, card, dangerCallout, input } from "@/components/ui/styles";
 
@@ -41,10 +42,7 @@ export function AddJobForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), cron: cron.trim() }),
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(await readError(res));
       router.push("/dashboard");
       router.refresh();
     } catch (err) {

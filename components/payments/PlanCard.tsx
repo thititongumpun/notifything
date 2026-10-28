@@ -22,7 +22,7 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps) {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number | null>(null);
 
   const { paidSum, remainingSum } = planTotals(plan);
   const next = nextInstallment(plan);
@@ -51,8 +51,9 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
   }, []);
 
   const totalPages = Math.max(1, Math.ceil(ledger.length / PAGE_SIZE));
-  const paginated = ledger.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const showDue = next !== null && page === totalPages;
+  const cur = Math.min(page ?? totalPages, totalPages);
+  const paginated = ledger.slice((cur - 1) * PAGE_SIZE, cur * PAGE_SIZE);
+  const showDue = next !== null && cur === totalPages;
 
   const cell = "px-[var(--space-3xs)] py-[var(--space-2xs)] first:pl-[var(--space-xs)] last:pr-[var(--space-xs)] sm:first:pl-[var(--space-sm)] sm:last:pr-[var(--space-sm)]";
   const th = `${cell} text-[length:var(--text-xs)] font-medium leading-[var(--leading-table)] text-[var(--color-ink-2)]`;
@@ -81,7 +82,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
 
       {/* Progress + burn-down */}
       <div className="flex flex-col gap-[var(--space-2xs)] border-b border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:px-[var(--space-sm)]">
-        <PlanProgress plan={plan} showTitle={false} />
+        <PlanProgress plan={plan} />
         <BalanceChart plan={plan} />
       </div>
 
@@ -124,7 +125,7 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
           ) : null}
         </tbody>
       </table>
-      {!next && page === totalPages ? (
+      {!next && cur === totalPages ? (
         <p className="border-t border-dotted border-[var(--color-leaf-edge)] px-[var(--space-xs)] py-[var(--space-2xs)] text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)] sm:px-[var(--space-sm)]">
           ชำระครบแล้ว
         </p>
@@ -134,12 +135,12 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-end gap-[var(--space-2xs)] border-t border-[var(--color-rule)] px-[var(--space-xs)] py-[var(--space-2xs)] sm:justify-between sm:px-[var(--space-sm)]">
           <p className="hidden text-[length:var(--text-xs)] leading-[var(--leading-body)] text-[var(--color-ink-2)] sm:block">
-            แสดง {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, ledger.length)} จาก {ledger.length}
+            แสดง {(cur - 1) * PAGE_SIZE + 1}–{Math.min(cur * PAGE_SIZE, ledger.length)} จาก {ledger.length}
           </p>
           <div className="flex flex-wrap items-center gap-[var(--space-3xs)]">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
+              onClick={() => setPage(Math.max(1, cur - 1))}
+              disabled={cur === 1}
               aria-label="หน้าก่อนหน้า"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
             >
@@ -149,9 +150,9 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
               <button
                 key={n}
                 onClick={() => setPage(n)}
-                aria-current={n === page ? "page" : undefined}
+                aria-current={n === cur ? "page" : undefined}
                 className={`flex min-h-[44px] min-w-9 items-center justify-center rounded-[var(--radius-input)] border px-[var(--space-2xs)] text-[length:var(--text-sm)] font-medium leading-none transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] active:translate-y-px ${
-                  n === page
+                  n === cur
                     ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-ink)]"
                     : "border-[var(--color-rule)] text-[var(--color-ink-2)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
                 }`}
@@ -160,8 +161,8 @@ export function PlanCard({ plan, onAddPayment, onRecordPayment }: PlanCardProps)
               </button>
             ))}
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
+              onClick={() => setPage(Math.min(totalPages, cur + 1))}
+              disabled={cur === totalPages}
               aria-label="หน้าถัดไป"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-input)] border border-[var(--color-rule)] text-[var(--color-ink-2)] transition-colors duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
             >

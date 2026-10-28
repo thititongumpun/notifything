@@ -63,9 +63,9 @@ export default async function DashboardPage() {
   const activeCount = jobs.filter((j) => j.enabled).length;
 
   const stat = (label: string, value: string) => (
-    <div className="min-w-0 bg-[var(--color-paper-2)] p-[var(--space-xs)]">
+    <div className="flex min-w-0 items-baseline justify-between gap-[var(--space-2xs)] bg-[var(--color-paper-2)] p-[var(--space-xs)] sm:block">
       <p className="text-[length:var(--text-sm)] text-[var(--color-ink-2)]">{label}</p>
-      <p className="mt-[var(--space-3xs)] font-mono text-[length:var(--text-md)] font-semibold tabular-nums text-[var(--color-ink)] [overflow-wrap:anywhere]">{value}</p>
+      <p className="font-mono text-[length:var(--text-md)] font-semibold tabular-nums whitespace-nowrap text-[var(--color-ink)] sm:mt-[var(--space-3xs)]">{value}</p>
     </div>
   );
 
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-rule)]">
+          <div className="grid grid-cols-1 gap-px sm:grid-cols-3 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-rule)] bg-[var(--color-rule)]">
             {stat("งานที่เปิดอยู่", `${activeCount}/${jobs.length}`)}
             {stat("ชำระแล้ว", `฿${fmt(paid)}`)}
             {stat("คงเหลือรวม", `฿${fmt(left)}`)}

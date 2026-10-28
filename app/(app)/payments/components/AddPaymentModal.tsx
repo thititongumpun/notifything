@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { readError } from "@/lib/http";
 import {
   Button,
   Calendar,
@@ -108,10 +109,7 @@ export function AddPaymentModal({ plan, prefill, next, onClose, onSuccess }: Add
         }),
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(await readError(res));
 
       onSuccess();
     } catch (err) {

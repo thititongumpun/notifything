@@ -33,6 +33,7 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
   // last known total across months with no record.
   const monthAmount = new Map<number, number>();
   for (const p of sorted) {
+    if (!p.isPaid) continue;
     monthAmount.set(
       p.paymentMonth,
       (monthAmount.get(p.paymentMonth) ?? 0) + (Number(p.amount) || 0),
@@ -84,7 +85,7 @@ export function BalanceChart({ plan }: { plan: PaymentPlan }) {
       janTicks.push({ x: x(m), label: String(d.year + 543) });
     }
   }
-  const step = Math.max(1, Math.ceil(janTicks.length / 7));
+  const step = Math.max(1, Math.ceil(janTicks.length / 4));
   const ticks = janTicks.filter((_, i) => i % step === 0);
 
   const currentBalance = balanceAt(frontier);

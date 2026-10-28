@@ -12,7 +12,7 @@ function fmtMonthYear(date: string | null): string | null {
  *  unpaid track (accent = paid, --color-track = remaining), plus the numbers
  *  that answer "how long to 100%": months, money left, projected finish.
  *  Screen readers get the sr-only table. */
-export function PlanProgress({ plan, showTitle = true }: { plan: PaymentPlan; showTitle?: boolean }) {
+export function PlanProgress({ plan }: { plan: PaymentPlan }) {
   const months = [...plan.payments].sort(
     (a, b) => a.paymentMonth - b.paymentMonth,
   );
@@ -29,12 +29,10 @@ export function PlanProgress({ plan, showTitle = true }: { plan: PaymentPlan; sh
     <figure className="min-w-0">
       <figcaption className="flex items-baseline justify-between gap-[var(--space-2xs)] min-w-0">
         <span className="min-w-0 font-display text-[length:var(--text-sm)] font-medium leading-[var(--leading-table)] text-[var(--color-ink)] [overflow-wrap:anywhere]">
-          {showTitle ? plan.description : `ชำระแล้ว ${paidCount}/${total} งวด`}
+          ชำระแล้ว {paidCount}/{total} งวด
         </span>
         <span
-          className={`shrink-0 font-mono tabular-nums text-[length:var(--text-md)] leading-none ${
-            "text-[var(--color-ink)]"
-          }`}
+          className="shrink-0 font-mono tabular-nums text-[length:var(--text-md)] leading-none text-[var(--color-ink)]"
         >
           {pct}%
         </span>
@@ -61,11 +59,6 @@ export function PlanProgress({ plan, showTitle = true }: { plan: PaymentPlan; sh
           <span className="text-[var(--color-ink)]">ชำระครบ {total} งวดแล้ว</span>
         ) : (
           <>
-            {showTitle ? (
-              <span>
-                ชำระแล้ว <span className="text-[var(--color-ink)]">{paidCount}/{total}</span> งวด
-              </span>
-            ) : null}
             <span>
               คงเหลือ ฿{fmt(remainingSum)} จาก ฿{fmt(totalSum)}
             </span>

@@ -6,7 +6,7 @@ import { Loader2, Pencil } from "lucide-react";
 import type { Job } from "@/lib/types";
 import { describeCron } from "@/lib/cron";
 import { CronSchedule } from "@/components/ui/CronSchedule";
-import { StatusChip } from "@/components/ui/StatusChip";
+import { readError } from "@/lib/http";
 import { btnPrimary, btnSecondary, dangerCallout, input } from "@/components/ui/styles";
 import { CRON_PRESETS } from "./presets";
 
@@ -16,15 +16,7 @@ async function patchJob(id: string, body: object) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) {
-    const text = await res.text();
-    let msg = text;
-    try {
-      const j = JSON.parse(text);
-      msg = j.error ?? j.message ?? text;
-    } catch {}
-    throw new Error(typeof msg === "string" && msg ? msg : `Error ${res.status}`);
-  }
+  if (!res.ok) throw new Error(await readError(res));
 }
 
 const labelClass = "text-[length:var(--text-sm)] leading-[var(--leading-body)] text-[var(--color-ink-2)]";
@@ -32,8 +24,8 @@ const labelClass = "text-[length:var(--text-sm)] leading-[var(--leading-body)] t
 export function JobEditor({ job }: { job: Job }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(job.name);
-  const [cron, setCron] = useState(job.cron);
+  const [name, setName] = useState(job.name.trim());
+  const [cron, setCron] = useState(job.cron.trim());
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(job.enabled);
@@ -41,8 +33,8 @@ export function JobEditor({ job }: { job: Job }) {
   const [toggleError, setToggleError] = useState<string | null>(null);
 
   const patch = {
-    ...(name.trim() !== job.name && { name: name.trim() }),
-    ...(cron.trim() !== job.cron && { cron: cron.trim() }),
+    ...(name.trim() !== job.name.trim() && { name: name.trim() }),
+    ...(cron.trim() !== job.cron.trim() && { cron: cron.trim() }),
   };
   const canSave = !pending && name.trim() !== "" && Object.keys(patch).length > 0;
 
@@ -63,8 +55,8 @@ export function JobEditor({ job }: { job: Job }) {
   }
 
   function cancel() {
-    setName(job.name);
-    setCron(job.cron);
+    setName(job.name.trim());
+    setCron(job.cron.trim());
     setError(null);
     setEditing(false);
   }
@@ -110,7 +102,6 @@ export function JobEditor({ job }: { job: Job }) {
           </span>
           เปิดใช้งาน
         </button>
-        <StatusChip on={enabled} label={enabled ? "เปิด" : "ปิด"} />
       </div>
       {toggleError && (
         <p role="alert" className={dangerCallout}>

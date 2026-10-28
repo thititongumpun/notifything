@@ -9,12 +9,12 @@ const CACHE = { next: { revalidate: 60, tags: ["jobs"] } };
 
 export async function getJobs(): Promise<Job[]> {
   const res = await fetch(`${API_URL}/jobs`, CACHE);
-  if (!res.ok) throw new Error(`Failed to fetch jobs: ${res.status}`);
+  if (!res.ok) throw new Error(`โหลดรายการงานไม่สำเร็จ (HTTP ${res.status})`);
   return res.json();
 }
 
 export async function getJobDetail(id: string): Promise<JobDetail> {
   const res = await fetch(`${API_URL}/jobs/${id}`, CACHE);
-  if (!res.ok) throw new Error(`Failed to fetch job ${id}`);
+  if (!res.ok) throw new Error(`โหลดข้อมูลงานไม่สำเร็จ (HTTP ${res.status})`);
   return res.json();
 }
