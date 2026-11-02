@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   }
 
   if (res.ok) {
-    revalidateTag("jobs", "max");
+    revalidateTag("jobs", { expire: 0 });
   }
 
   return new Response(res.body, {

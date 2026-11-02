@@ -31,7 +31,7 @@ The API returns **200 with an empty body** for unknown job ids — treat an unpa
 ### Data fetching & caching
 
 - **Reads** go through `lib/api.ts` (`getJobs`, `getJobDetail`) with `next: { revalidate: 60, tags: ["jobs"] }` — pages are served from cache and revalidated in the background.
-- **Writes** never call the backend directly from the browser. They POST to same-origin route handlers (`app/api/payments/route.ts`, `app/api/jobs/addjob/route.ts`, `app/api/jobs/[id]/route.ts` for `PATCH`, validated by `lib/jobPatch.ts`) that forward to the backend and call `revalidateTag("jobs", "max")`, so `router.refresh()` immediately shows fresh data. Any new mutation endpoint should follow this proxy + revalidate pattern.
+- **Writes** never call the backend directly from the browser. They POST to same-origin route handlers (`app/api/payments/route.ts`, `app/api/jobs/addjob/route.ts`, `app/api/jobs/[id]/route.ts` for `PATCH`, validated by `lib/jobPatch.ts`) that forward to the backend and call `revalidateTag("jobs", { expire: 0 })` (not `"max"`, which serves stale data once), so `router.refresh()` immediately shows fresh data. Any new mutation endpoint should follow this proxy + revalidate pattern.
 
 ### App Structure
 
