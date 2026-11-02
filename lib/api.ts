@@ -4,7 +4,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /** Shared fetch options: pages are served from cache and revalidated in the
  *  background. Mutations go through app/api proxies that call
- *  revalidateTag("jobs", "max"), so writes always show immediately. */
+ *  revalidateTag("jobs", { expire: 0 }), so writes always show immediately
+ *  ("max" is stale-while-revalidate: the first refresh after a write would still show old data). */
 const CACHE = { next: { revalidate: 60, tags: ["jobs"] } };
 
 export async function getJobs(): Promise<Job[]> {

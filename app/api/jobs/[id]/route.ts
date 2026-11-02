@@ -19,7 +19,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return Response.json({ error: "เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ" }, { status: 502 });
   }
 
-  if (res.ok) revalidateTag("jobs", "max");
+  if (res.ok) revalidateTag("jobs", { expire: 0 });
 
   return new Response(res.body, {
     status: res.status,
